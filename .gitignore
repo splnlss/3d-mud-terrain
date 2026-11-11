@@ -1,0 +1,5 @@
+
+# Paradev per-workspace files
+.paradev/workspace.env
+.paradev/ports.json
+.paradev/config.local.json
