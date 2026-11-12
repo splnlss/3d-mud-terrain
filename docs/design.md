@@ -1,5 +1,7 @@
 # 3D Mud Terrain — Design
 
+> **Visual direction update:** [Visual style PRD](visual-style-prd.md) supersedes conflicting material restrictions and performance-first gate ordering. Visual fidelity and portable terrain assets are the primary acceptance gates. PlayCanvas is a preview adapter; geometry/material LOD governs runtime detail. The earlier performance figures are secondary optimisation targets.
+
 A stylised, real-time diorama of the San Luis Valley (Colorado), streamed as OGC 3D
 Tiles. Real terrain drives the form; satellite imagery and Google 3D Tiles are terrain
 reference only. **The reference image (`docs/reference/relief-pfyffer.png`) is the

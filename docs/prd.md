@@ -1,5 +1,7 @@
 # 3D Mud Terrain — Product Requirements
 
+> **Visual direction update:** [Visual style PRD](visual-style-prd.md) supersedes conflicting material restrictions and performance-first gate ordering. Visual fidelity and portable terrain assets are the primary acceptance gates. PlayCanvas is a preview adapter; geometry/material LOD governs runtime detail. The earlier performance figures are secondary optimisation targets.
+
 ## Problem Statement
 
 San Luis Valley terrain is usually presented as a map or a geographically literal 3D scene. The desired experience is a real-time, explorable diorama that remains recognisably San Luis while looking like the hand-sculpted Relief Pfyffer model in [`reference/relief-pfyffer.png`](reference/relief-pfyffer.png). “Mud” describes the model's material, not a simulation.

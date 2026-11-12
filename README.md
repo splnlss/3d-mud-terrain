@@ -87,7 +87,9 @@ do not establish them.
 
 ## Source and requirements
 
-- [PRD](docs/prd.md), [design](docs/design.md), [task sequence](docs/tickets/README.md)
+- [Visual style PRD — quality first, engine-agnostic assets](docs/visual-style-prd.md)
+- [Sculpted reference patch implementation plan](docs/superpowers/plans/2026-11-12-sculpted-reference-patch.md)
+- [Original PRD](docs/prd.md), [design](docs/design.md), [task sequence](docs/tickets/README.md)
 - [Implementation progress and limitations](docs/progress.md)
 - [Validation evidence and remaining gates](docs/validation.md)
 - [PlayCanvas 3D Tiles integration](https://developer.playcanvas.com/user-manual/engine/libraries/3d-tiles/)

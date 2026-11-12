@@ -1,5 +1,7 @@
 # Vertical-slice task index
 
+> **Visual direction update:** [Visual style PRD](../visual-style-prd.md) supersedes conflicting material restrictions and performance-first gate ordering. Visual fidelity and portable terrain assets are the primary acceptance gates. PlayCanvas is a preview adapter; geometry/material LOD governs runtime detail. The earlier performance figures are secondary optimisation targets.
+
 Each ticket ends with a visible browser result and touches bake inputs, 3D Tiles output, and viewer behaviour. Execute in numerical order unless dependencies permit parallel work. Do not start a horizontal-only infrastructure ticket.
 
 | Order | Slice | Blocked by | Browser result |
