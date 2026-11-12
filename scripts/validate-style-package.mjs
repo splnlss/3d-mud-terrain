@@ -7,6 +7,7 @@ import validator from 'gltf-validator';
 export async function validateStylePackage(root) {
   root=await realpath(root);
   const manifest=JSON.parse(await readFile(resolve(root,'manifest.json'),'utf8'));
+  if(manifest.exports_status && manifest.exports_status!=='ready')throw new Error('Portable exports are stale; rebuild the package before validating delivery assets');
   const errors=[];
   for(const file of manifest.files ?? []) {
     if(typeof file!=='string'||isAbsolute(file)||file.split(/[\\/]/).includes('..')||file.includes(':'))
@@ -15,7 +16,9 @@ export async function validateStylePackage(root) {
     if(relative(root,path).startsWith('..')) throw new Error('file symlink escape');
   }
   const io=new NodeIO();let meshes=0,primitives=0;
-  for(const lod of manifest.lods ?? []) {
+  const entries=[...(manifest.lods ?? [])];
+  if(manifest.water?.mesh)entries.push({path:manifest.water.mesh,bounds_m:manifest.water.bounds_m});
+  for(const lod of entries) {
     if(!manifest.files.includes(lod.path))throw new Error('LOD mesh not declared in files');
     const path=resolve(root,lod.path), bytes=new Uint8Array(await readFile(path));
     const report=await validator.validateBytes(bytes,{uri:lod.path});

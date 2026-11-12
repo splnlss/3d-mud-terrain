@@ -109,3 +109,18 @@ cached regional DEM/NHD inputs, verifies their pinned hashes, and writes
 Run the regional data bake first if the cached inputs are absent. Source masters
 and the package contract are independent of the preview engine. Generated packages
 stay under the ignored `data/` directory. See the [patch plan](docs/superpowers/plans/2026-11-12-sculpted-reference-patch.md).
+
+`uv run python -m bake.style.author --package data/style-patch` creates the
+coherent material masters. `npm run refine:patch` then rebuilds the source scene
+from the untouched DEM and the current [material recipe](configs/style-materials.json),
+with 2.5 m authored detail, mapped water and a Blender close render. Add
+`-- --views close,elevated,overhead` for all source review cameras. Refinement
+publishes transactionally and marks existing delivery exports stale. It does not
+claim the look is approved or replace the existing regional viewer.
+
+Rebuild portable standard-material cells with
+`uv run python -m bake.style.export --package data/style-patch`, then independently
+inspect them with `blender --background --python-exit-code 1 --python
+bake/style/blender_bake.py -- --package data/style-patch --action verify` and
+`node scripts/validate-style-package.mjs data/style-patch`. Source authoring renders
+and fresh portable-import renders are separately labelled; both need visual review.

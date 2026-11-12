@@ -62,3 +62,11 @@ def test_validator_measures_world_bounds_after_node_transforms(tmp_path):
        'lods':[{'path':'mesh.glb','bounds_m':[[100,20,-40],[101,20,-39]]}]}))
     run=subprocess.run(['node','scripts/validate-style-package.mjs',str(tmp_path)],capture_output=True,text=True)
     assert run.returncode==0,run.stderr
+
+
+def test_validator_cannot_sign_off_delivery_assets_stale_after_refinement(tmp_path):
+    (tmp_path/'manifest.json').write_text(json.dumps({'schema_version':1,'files':[],
+        'lods':[],'exports_status':'stale after source refinement'}))
+    run=subprocess.run(['node','scripts/validate-style-package.mjs',str(tmp_path)],capture_output=True,text=True)
+    assert run.returncode!=0
+    assert 'stale' in run.stderr.lower()

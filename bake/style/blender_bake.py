@@ -57,7 +57,8 @@ def bounds_gltf(objects):
 def bake(package):
     manifest,original=build_scene(package)
     source=np.load(package/'source/sculpted.npz')['height'];size=manifest['size_m'];base=manifest['base_elevation_m']
-    clasts=[obj for obj in bpy.context.scene.objects if obj.type=='MESH' and obj!=original]
+    clasts=[obj for obj in bpy.context.scene.objects if obj.type=='MESH' and obj!=original and obj.get('style_role')!='water']
+    waters=[obj for obj in bpy.context.scene.objects if obj.get('style_role')=='water']
     # Source clasts get standard UV/PBR materials, never viewer-only shading.
     granular=next(m for m in manifest['materials'] if m['kind']=='granular')
     clast_mat=pbr_material(package,'Granular clasts',granular['maps'])
@@ -102,13 +103,21 @@ def bake(package):
         cell['mesh']=path
         print(f'Exported {path} with {len(selected)-1} clasts batched by material',flush=True)
         bpy.data.objects.remove(obj,do_unlink=True)
+    if waters:
+        bpy.ops.object.select_all(action='DESELECT')
+        for water in waters:water.select_set(True)
+        bpy.context.view_layer.update()
+        path='meshes/water.glb'
+        bpy.ops.export_scene.gltf(filepath=str((package/path).resolve()),export_format='GLB',
+            use_selection=True,export_yup=True,export_cameras=False,export_lights=False)
+        manifest['water'].update(mesh=path,bounds_m=bounds_gltf(waters))
     original.hide_render=False;original.hide_set(False)
     # Editable source remains portable: store image paths relative to saved .blend.
     bpy.ops.wm.save_as_mainfile(filepath=str((package/'source/master.blend').resolve()))
     for image in bpy.data.images:
         if image.filepath:image.filepath=bpy.path.relpath(image.filepath)
     bpy.ops.wm.save_as_mainfile(filepath=str((package/'source/master.blend').resolve()))
-    manifest['lods']=lods
+    manifest['lods']=lods;manifest['exports_status']='ready'
     (package/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
 
 

@@ -17,7 +17,8 @@
     "bake:style": "uv run python -m bake --full --style --material --compress",
     "bake:scene": "uv run python -m bake --full --style --material --water --imagery --compress",
     "test": "uv run pytest && node --experimental-strip-types --test tests/*.test.ts",
-    "bake:patch": "uv run python -m bake.style --config configs/style-patch.json --output data/style-patch"
+    "bake:patch": "uv run python -m bake.style --config configs/style-patch.json --output data/style-patch",
+    "refine:patch": "uv run python -m bake.style.refine --render"
   },
   "dependencies": {
     "@gltf-transform/core": "^4.5.1",

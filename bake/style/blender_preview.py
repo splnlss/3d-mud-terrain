@@ -6,8 +6,9 @@ from pathlib import Path
 import sys
 
 import bpy
+import bmesh
 import numpy as np
-from mathutils import Vector,Quaternion
+from mathutils import Vector,Quaternion,Matrix
 
 
 def aim(obj,target):
@@ -36,47 +37,115 @@ def simple_material(name,color,roughness=.8):
 
 def build_scene(package,neutral=False):
     package=Path(package);manifest=json.loads((package/'manifest.json').read_text())
-    heights=np.load(package/'source/sculpted.npz')['height']
+    fields=np.load(package/'source/sculpted.npz');heights=fields['height']
     instances=json.loads((package/'source/clasts.json').read_text())
     bpy.ops.object.select_all(action='SELECT');bpy.ops.object.delete(use_global=False)
     base=manifest['base_elevation_m'];size=manifest['size_m']
     terrain=terrain_geometry(heights,size,base)
-    clay=simple_material('Ochre clay',(.42,.28,.13) if not neutral else (.45,.42,.37))
+    attribute=terrain.data.color_attributes.new(name='Style fields',type='FLOAT_COLOR',domain='POINT')
+    packed=np.stack([fields['crust'],fields['dust'],fields['cavity'],np.ones_like(heights)],axis=-1).astype('float32')
+    attribute.data.foreach_set('color',packed.ravel())
+    clay=simple_material('Ochre clay',(.42,.28,.13) if not neutral else (.45,.42,.37),.62)
     dark=simple_material('Dark crumbly aggregate',(.15,.135,.105) if not neutral else (.45,.42,.37))
+    if not neutral:
+        tree=dark.node_tree;bsdf=tree.nodes.get('Principled BSDF')
+        coords=tree.nodes.new('ShaderNodeTexCoord')
+        pits=tree.nodes.new('ShaderNodeTexNoise');pits.inputs['Scale'].default_value=18
+        pits.inputs['Detail'].default_value=4;pits.inputs['Roughness'].default_value=.8
+        tree.links.new(coords.outputs['Object'],pits.inputs['Vector'])
+        bump=tree.nodes.new('ShaderNodeBump');bump.inputs['Strength'].default_value=.8;bump.inputs['Distance'].default_value=2.0
+        tree.links.new(pits.outputs['Fac'],bump.inputs['Height']);tree.links.new(bump.outputs['Normal'],bsdf.inputs['Normal'])
+        variation=tree.nodes.new('ShaderNodeValToRGB');variation.color_ramp.elements[0].color=(.07,.06,.045,1)
+        variation.color_ramp.elements[1].color=(.26,.235,.19,1)
+        tree.links.new(pits.outputs['Fac'],variation.inputs[0]);tree.links.new(variation.outputs[0],bsdf.inputs['Base Color'])
     terrain.data.materials.append(clay)
+    if not neutral:
+        # These physical-scale nodes are source authoring; standard export bakes
+        # their character into images. The source view can resolve fine clay relief.
+        tree=clay.node_tree;bsdf=tree.nodes.get('Principled BSDF')
+        coordinates=tree.nodes.new('ShaderNodeTexCoord')
+        fine=tree.nodes.new('ShaderNodeTexNoise');fine.inputs['Scale'].default_value=.85
+        fine.inputs['Detail'].default_value=3.5;fine.inputs['Roughness'].default_value=.7
+        tree.links.new(coordinates.outputs['Object'],fine.inputs['Vector'])
+        rough=tree.nodes.new('ShaderNodeBump');rough.inputs['Strength'].default_value=.35
+        rough.inputs['Distance'].default_value=.4
+        tree.links.new(fine.outputs['Fac'],rough.inputs['Height'])
+        folds=tree.nodes.new('ShaderNodeTexNoise');folds.inputs['Scale'].default_value=.095
+        folds.inputs['Detail'].default_value=4
+        tree.links.new(coordinates.outputs['Object'],folds.inputs['Vector'])
+        coarse=tree.nodes.new('ShaderNodeBump');coarse.inputs['Strength'].default_value=.3
+        coarse.inputs['Distance'].default_value=.7
+        tree.links.new(folds.outputs['Fac'],coarse.inputs['Height']);tree.links.new(rough.outputs['Normal'],coarse.inputs['Normal'])
+        tree.links.new(coarse.outputs['Normal'],bsdf.inputs['Normal'])
+        tint=tree.nodes.new('ShaderNodeValToRGB')
+        tint.color_ramp.elements[0].color=(.35,.25,.13,1);tint.color_ramp.elements[1].color=(.62,.45,.26,1)
+        tree.links.new(folds.outputs['Fac'],tint.inputs[0])
+        attr=tree.nodes.new('ShaderNodeAttribute');attr.attribute_name='Style fields'
+        separate=tree.nodes.new('ShaderNodeSeparateColor');tree.links.new(attr.outputs['Color'],separate.inputs['Color'])
+        clay_mix=tree.nodes.new('ShaderNodeMixRGB');clay_mix.inputs[1].default_value=(.095,.09,.075,1)
+        tree.links.new(separate.outputs['Red'],clay_mix.inputs[0]);tree.links.new(tint.outputs[0],clay_mix.inputs[2])
+        dust_amount=tree.nodes.new('ShaderNodeMath');dust_amount.operation='MULTIPLY';dust_amount.inputs[1].default_value=.4
+        tree.links.new(separate.outputs['Green'],dust_amount.inputs[0])
+        dust_mix=tree.nodes.new('ShaderNodeMixRGB');dust_mix.inputs[2].default_value=(.72,.65,.52,1)
+        tree.links.new(dust_amount.outputs[0],dust_mix.inputs[0]);tree.links.new(clay_mix.outputs[0],dust_mix.inputs[1])
+        tree.links.new(dust_mix.outputs[0],bsdf.inputs['Base Color'])
+        wet_rough=tree.nodes.new('ShaderNodeMapRange');wet_rough.inputs['From Min'].default_value=0;wet_rough.inputs['From Max'].default_value=1
+        wet_rough.inputs['To Min'].default_value=.8;wet_rough.inputs['To Max'].default_value=.55
+        tree.links.new(separate.outputs['Red'],wet_rough.inputs['Value']);tree.links.new(wet_rough.outputs[0],bsdf.inputs['Roughness'])
     # Twelve reproducible irregular clast shapes, instanced rather than duplicated.
     templates=[]
     for i in range(12):
-        bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=2,radius=1)
-        obj=bpy.context.object;mesh=obj.data
-        rng=np.random.default_rng(4271+i)
-        for v in mesh.vertices:
-            d=v.co.normalized();v.co*=float(rng.uniform(.85,1.13))
-            # Flattened fractured underside and directional worn facets.
-            v.co.z=max(v.co.z,-.65)
-        for face in mesh.polygons:face.use_smooth=True
+        bm=bmesh.new();rng=np.random.default_rng(4271+i)
+        def fragment(centre,radius,phase):
+            count=int(rng.integers(6,10));top=[];bottom=[]
+            slope=rng.uniform(-.25,.25,2)
+            for k in range(count):
+                angle=phase+2*math.pi*k/count;rad=radius*rng.uniform(.72,1.12)
+                x=rad*math.cos(angle);y=rad*math.sin(angle)
+                z=radius*(.7+slope[0]*x/radius+slope[1]*y/radius+rng.uniform(-.12,.12))
+                top.append(bm.verts.new(centre+Vector((x,y,z))))
+                bottom.append(bm.verts.new(centre+Vector((x*.8,y*.8,-radius*.45))))
+            bm.faces.new(top);bm.faces.new(list(reversed(bottom)))
+            for k in range(count):j=(k+1)%count;bm.faces.new([top[k],bottom[k],bottom[j],top[j]])
+        fragment(Vector((0,0,0)),.85,rng.uniform(0,6.28))
+        for j in range(6):
+            angle=rng.uniform(0,2*math.pi);rad=rng.uniform(.3,.85)
+            centre=Vector((rad*math.cos(angle),rad*math.sin(angle),rng.uniform(.25,.6)))
+            fragment(centre,rng.uniform(.24,.47),rng.uniform(0,6.28))
+        bmesh.ops.triangulate(bm,faces=list(bm.faces))
+        mesh=bpy.data.meshes.new(f'Crumbly aggregate {i}');bm.to_mesh(mesh);bm.free()
+        for face in mesh.polygons:face.use_smooth=False
         mesh.materials.append(dark);templates.append(mesh)
-        bpy.data.objects.remove(obj,do_unlink=True)
     for c in instances:
         obj=bpy.data.objects.new(c['id'],templates[int(c['shape_id'].split('-')[-1])])
         bpy.context.collection.objects.link(obj)
         x,h,z=c['position_m'];rx,ry,rz=c['radii_m'];obj.location=(x,-z,h-base)
         obj.scale=(rx,rz,ry)
         q=c['orientation_xyzw'];obj.rotation_mode='QUATERNION';obj.rotation_quaternion=Quaternion((q[3],q[0],-q[2],q[1]))
+    water_path=package/'source/water-mesh.npz'
+    if water_path.exists():
+        data=np.load(water_path);positions=data['positions'];faces=data['triangles'].copy()
+        points=np.c_[positions[:,0],-positions[:,2],positions[:,1]]
+        cross=np.cross(points[faces[:,1]]-points[faces[:,0]],points[faces[:,2]]-points[faces[:,0]])
+        faces[cross[:,2]<0]=faces[cross[:,2]<0][:,[0,2,1]]
+        mesh=bpy.data.meshes.new('Silty channel');mesh.from_pydata(points.tolist(),[],faces.tolist());mesh.update()
+        obj=bpy.data.objects.new('Mapped pale water',mesh);bpy.context.collection.objects.link(obj)
+        water=simple_material('Opaque warm silt',(1.0,.94,.78),.88)
+        obj.data.materials.append(water);obj['style_role']='water'
     scene=bpy.context.scene
     scene.render.engine='CYCLES';scene.cycles.samples=32
     scene.cycles.use_denoising=True
     scene.render.resolution_x=1280;scene.render.resolution_y=900;scene.render.resolution_percentage=100
     scene.world.color=(.22,.22,.22)
     scene.world.use_nodes=True;scene.world.node_tree.nodes['Background'].inputs[0].default_value=(.65,.69,.76,1)
-    scene.world.node_tree.nodes['Background'].inputs[1].default_value=.3
-    bpy.ops.object.light_add(type='SUN',location=(-800,-500,1000));sun=bpy.context.object
-    sun.name='Warm soft key';sun.data.energy=2.4;sun.data.angle=.14
+    scene.world.node_tree.nodes['Background'].inputs[1].default_value=.18
+    bpy.ops.object.light_add(type='SUN',location=(-800,-500,600));sun=bpy.context.object
+    sun.name='Warm soft key';sun.data.energy=2.4;sun.data.angle=.065
     sun.data.color=(1,.86,.69);aim(sun,(0,0,0))
     bpy.ops.object.camera_add();camera=bpy.context.object;scene.camera=camera
     camera.data.type='PERSP';camera.data.lens_unit='FOV';camera.data.angle=math.radians(40)
     camera.data.clip_end=20000
-    scene.view_settings.view_transform='AgX';scene.view_settings.exposure=0
+    scene.view_settings.view_transform='AgX';scene.view_settings.exposure=1.0
     return manifest,terrain
 
 

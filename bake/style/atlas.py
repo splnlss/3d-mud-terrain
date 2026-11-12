@@ -11,8 +11,8 @@ def compose_atlas(bounds,resolution,recipe,crust):
     seed=recipe.get('seed',4271)
     broad=noise(x/27,y/27,seed);warp=noise(x/14,y/14,seed+3)*3
     grain=noise(x/.6,y/.6,seed+5)
-    clumps=(1-abs(2*noise((x+warp)/2.3,(y-warp)/2.3,seed+1)-1))**3
-    grooves=np.maximum(.13-abs(np.sin(y*1.2+warp*2+x*.08)),0)
+    clumps=np.clip((noise((x+warp)/1.5,(y-warp)/1.5,seed+1)-.42)*2.2,0,1)**1.8
+    grooves=np.clip(.4-noise((x+warp)/.9,y/7,seed+11),0,1)*.2
     indices=np.meshgrid(np.linspace(0,crust.shape[1]-1,resolution),np.linspace(0,crust.shape[0]-1,resolution))
     weight=map_coordinates(crust,[indices[1],indices[0]],order=1)
     weight=np.clip((weight-.25)*1.8+(broad-.5)*.6,0,1)
