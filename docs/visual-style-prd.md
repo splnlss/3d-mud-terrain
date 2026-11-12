@@ -348,7 +348,9 @@ features; POM and terrain heightfields cannot represent them faithfully.
 
 [Claude style-plan review](claude-style-review.md) preserves the original findings,
 host verification and documentation corrections. The review predates the corrections;
-no subsequent Claude approval is claimed.
+Claude subsequently re-reviewed commit `ab760e2` and returned **Ready to start**,
+with seven task-level refinements recorded and addressed in the plan. This is plan
+readiness, not approval of an implemented visual result.
 
 ## 10. Technical sources
 

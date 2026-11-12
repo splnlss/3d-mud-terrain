@@ -1,10 +1,11 @@
 # Claude review: visual style PRD and reference patch plan
 
-Status: **DONE_WITH_CONCERNS**. Claude completed a read-only review of commit
+Status: **DONE_WITH_CONCERNS**, re-review **Ready to start**. Claude initially reviewed commit
 `ad7815403f2434604a676fc01099b1979fade8fc`. Its original verdict was **not ready to start**.
-The host revised the documentation after checking the findings; Claude has not
-reviewed those revisions, and this report does not claim subsequent Claude approval.
-No terrain implementation or visual acceptance was performed in this review.
+Claude subsequently re-reviewed the corrections at `ab760e2` in the same session
+and closed all five original P1 blockers. It returned **Ready to start**, with seven
+P2 task-level refinements. Those refinements are incorporated below; no third review
+is claimed. No terrain implementation or visual acceptance was performed here.
 
 Model: `claude-fable-5-1`. Session: `010edd1d-0c18-41d0-b890-668f671b61e6`.
 Scope: PRD, implementation plan, relevant existing bake/material/shader source and
@@ -112,3 +113,73 @@ PlayCanvas 2.24.0 claims in `prd:159` are confirmed in `parallax.js:3,36,74`. Th
 6. Write the height and normal convention conversions into the manifest schema section (P2.6, P2.7).
 
 **Verdict:** Not ready to start. The direction and technique stack are correct and should close the gap if the sculpted band is real geometry with constrained clustering. As written, the plan can be executed to completion while producing a second generic surface, because scale, composition path and recipe constraints are unspecified and three gates reference tooling built later. The six changes above are documentation edits of about a day. Once in, Tasks 1 through 3 can proceed; Tasks 4 to 7 need the P2 items first.
+
+
+## Re-review of ab760e2
+
+Claude re-reviewed the complete corrected PRD and plan, correction diff and installed
+engine height-factor conversion evidence, retaining the earlier references in its
+session context. The original five blockers were closed. Its exact verdict was
+**Ready to start**; Task 1 can begin, with refinements before their owning tasks.
+
+### Host disposition of remaining P2 findings
+
+1. Added `clast_instances` records with positions, radii, orientation, shape and stable
+   ids in Task 2; its source renderer builds simple geometry before Task 3 refines it.
+2. Task 3 checks V1/V2 and clast contact; full bank/channel V4 follows integration
+   and remains required at Task 7.
+3. Added explicit north-rising/green-below-neutral and reverse-ramp assertions.
+4. Added VEC4 tangent/accessor, unit-length and handedness checks to export tests.
+5. Added per-island UV-to-surface metric metadata/calibration for POM; planar scalar
+   fallback is restricted to verified uniform planar islands.
+6. Bank checks now refer to the full-quality patch plus fixture LODs before VS5.
+7. Added bounds-based per-cell visibility loading, a prefetch ring, lazy comparison
+   variants and GPU resource release to the preview adapter contract.
+
+These are documentation changes, not implemented/tested runtime guarantees.
+The review's claim that a coefficient-of-variation threshold cannot admit a jittered
+lattice is too strong: sufficient jitter can pass. The test is a calibration against
+regular grids, and explicit cluster occupancy plus image review still establish the
+spatial character. No statistical test here guarantees a reference match.
+
+### Re-review response (verbatim)
+
+**Disposition of the original P1 blockers**
+
+1. **Scale.** Closed. `docs/visual-style-prd.md:224-242` and `plan:99` fix the ranges, and `feature_scale_m` is in the manifest (`plan:52`). The numbers are internally consistent: at 1200 m and 40° vertical FOV a 1080-pixel frame covers about 870 m, so an 8–40 m clast is 10–50 px and 0.244 m texels give roughly three texels per pixel. Whether the look is right is the experiment, not a spec gap.
+
+2. **Portable composition.** Closed. `prd:66-77` and `plan:55-59,114` define unique-UV atlases with the blend baked in, triplanar as authoring or labelled experiment only. See P2 item 7 for one memory consequence.
+
+3. **Recipe constraints.** Closed. Named parameters at `prd:232-242`, stored and reported in `plan:99`. The nearest-neighbour coefficient of variation above 0.3 is a sound grid rejector: a perfect grid scores 0 and a Poisson scatter about 0.52, so the test cannot pass on a jittered lattice while leaving natural distributions alone. I accept the host's point that a multimodal test was wrong.
+
+4. **Circular gates.** Closed. `blender_preview.py` is created in Task 2 (`plan:91,101`), VS2 closes on Blender renders (`prd:300`), and the capture script moves to Task 5 (`plan:136,147`) with Tasks 6 and 7 reusing it (`plan:154,168`). One residual dependency ambiguity remains, see P2 item 1.
+
+5. **Portability loophole.** Closed. `prd:303`, `plan:59,116,171` require V1/V2/V4 on a fresh Blender import of the standard GLB without POM. One sequencing defect follows from this, see P2 item 2.
+
+**Convention correctness**
+
+The height mapping is correct against the installed shader. Normalised height 1 at the top matches `surfaceDepth = 1 - h` at `parallax.js:39`; `uv_depth = height_range_m / span_m` is the factor the shader expects in UV units for a square planar material; base 1 gives `geomDepth = 0` at `parallax.js:21`, so the march starts at the geometric surface and only carves. With the host's `convertHeightMapFactor` evidence (line 44-46), the public property as `10 * uv_depth` is right. The `vec2(x, -y)` flip at `parallax.js:15` is consistent with the stated upper-left image origin. The normal convention text at `prd:170-176` is the glTF convention and the residual-map tolerances at `plan:128` are measurable.
+
+**Remaining P2 findings**
+
+1. **Task 2 cannot show V4 without clast instances.** `plan:101` says the preview renders "authored surfaces/cluster meshes", but cluster meshes are first built in Task 3 (`plan:114`), and `sculpt_field` (`plan:94`) returns only fields. The VS2 gate (`prd:300`) includes V4 floating-deposit checks. Fix: add a `clast_instances` output to the Task 2 interface (position, radii, orientation, shape id) that `blender_preview.py` instances as simple geometry. Resolve before starting Task 2; it is an interface addition, not a redesign.
+
+2. **Task 3 requires V4 before bank work exists.** `plan:116` demands V1/V2/V4 at the close camera in Task 3, but V4's bank-to-channel continuity (`prd:104`) is Task 6 work (`plan:161`). As written Task 3 cannot close. Fix: Task 3 requires V1/V2 plus the clast-contact half of V4; full V4 on the Blender import is checked in Task 7 (`plan:171`), which already says so.
+
+3. **Normal sign test must be explicit, because the legacy code is inverted.** `bake/material.py:58-59` sets normal Y to minus the southward gradient, which under an upper-left origin is the opposite of glTF. The new `normal_from_height` tests (`plan:98`) should state the sign: a ramp rising toward image top (north) yields green below 0.5. Without this the "analytic ramp" test can be written to agree with the old code and pass.
+
+4. **Validator should require exported tangents.** `prd:173` mandates MikkTSpace tangents so Blender and PlayCanvas do not derive different frames, but `scripts/validate-style-package.mjs` (`plan:111`) does not list a `TANGENT` accessor check. Add it. Task-level fix.
+
+5. **POM metric on repacked islands.** `prd:201-202` correctly limits the planar formula, but `prd:75-76` says to subdivide/repack steep faces, which produces exactly the islands where the planar scalar is invalid. The preview adapter needs either per-island UV-to-surface scale stored in the package or a planar-projection-only atlas with accepted stretch. Decide at Task 3 with the fixture; not blocking.
+
+6. **"Across all LODs" in Task 6.** `plan:160` tests bank contact across all LODs, but before VS5 only Task 4 fixture levels and the full patch exist (`prd:293-295`). Reword to "full patch plus fixture levels". Trivial.
+
+7. **Preview GPU residency.** Sixteen 2048² cells with three RGBA8 maps plus mips and a float height texture come to roughly 1.3 GB resident, quadrupling where cells go to 4096². `prd:328-330` already requires recording residency and allows intervention only if review stalls. Add a per-cell visibility load to the Task 5 adapter interface so the comparison does not exhaust a browser context. Not blocking.
+
+**Items checked and not raised**
+
+The nested diagnostic light, linear pipeline, float height upload, fixture-only LOD ordering, synthetic test rasters, reference-only direct-light bakes and roughness ranges are all present with concrete task steps. Site suitability remains correctly a Task 1 inspection outcome (`plan:84`) rather than a resolved claim. No remaining circular dependency exists after the Task 2 instance fix.
+
+**Readiness verdict**
+
+Ready to start. All five original blockers are closed with concrete, consistent text, and the height, normal and residual conventions are correct against the installed engine and the glTF specification. Task 1 can begin unchanged. Before Task 2 begins, add the clast-instance output (P2.1) and the explicit normal-sign assertion (P2.3). Before Task 3 begins, split the V4 requirement (P2.2) and add the tangent check (P2.4). Items 5 through 7 are task-level decisions resolved with the prescribed fixtures and captures. None of the remaining findings is an implementation-blocking specification defect.
