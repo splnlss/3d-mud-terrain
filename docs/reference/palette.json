@@ -1,0 +1,11 @@
+{
+  "reference": "relief-pfyffer.png",
+  "method": "15x15 pixel means from flat patches within visually identified water regions; photographed light and shadow are retained",
+  "water_samples": [
+    { "region": "upper channel, bright light", "x": 513, "y": 195, "mean_rgb": [253, 249, 240] },
+    { "region": "middle channel", "x": 1027, "y": 406, "mean_rgb": [239, 224, 199] },
+    { "region": "lower channel, warm light", "x": 706, "y": 559, "mean_rgb": [230, 212, 176] }
+  ],
+  "water_base_srgb": "#EFE0C7",
+  "note": "These are photographed pixel colours, not calibrated unlit albedo. Compare the rendered range and material character with the photograph; do not require one colour across all lighting. The earlier #C9C6C2 lavender-grey was an uncalibrated guess."
+}

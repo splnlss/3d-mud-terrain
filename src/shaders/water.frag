@@ -1,0 +1,30 @@
+precision highp float;
+uniform sampler2D uNormal;
+uniform sampler2D uShoreMap;
+uniform vec4 uBounds;
+uniform vec3 uSun;
+uniform float uTime;
+uniform vec3 uEye;
+uniform float uExtent;
+varying vec3 vWorld;
+void main(void) {
+    vec2 maskUv = vec2(vWorld.x-uBounds.x, uBounds.y+vWorld.z)/uBounds.zw;
+    maskUv = (maskUv*255.0+0.5)/256.0;
+    float shore = texture2D(uShoreMap, maskUv).a;
+    vec2 uv = vWorld.xz / 360.0;
+    vec3 first = texture2D(uNormal, uv+vec2(uTime*.004, uTime*.001)).xyz*2.0-1.0;
+    vec3 second = texture2D(uNormal, uv*.67+vec2(-uTime*.002, uTime*.003)).xyz*2.0-1.0;
+    vec3 normal = normalize(vec3((first.x+second.x)*.055, 1.0, (first.y+second.y)*.055));
+    vec3 view = normalize(uEye-vWorld);
+    vec3 halfVector = normalize(view+uSun);
+    float glint = pow(max(dot(normal, halfVector), 0.0), 96.0)*.13;
+    float fresnel = pow(1.0-max(dot(view, normal),0.0), 4.0)*.035;
+    float rim = 1.0-smoothstep(0.0, 0.45, shore);
+    float grain = (first.z-.85)*.025;
+    float pulse = sin(uTime*.45)*.004;
+    vec3 color = vec3(.937,.878,.780) + glint + fresnel + grain + pulse;
+    color *= 1.0-rim*.09;
+    float edge = smoothstep(uExtent*.46, uExtent*.5, max(abs(vWorld.x),abs(vWorld.z)));
+    color = mix(color, vec3(.898,.875,.827), edge);
+    gl_FragColor = vec4(color, 1.0);
+}

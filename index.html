@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#e5dfd3" />
+    <meta name="description" content="A sculpted terrain study of the San Luis Valley." />
+    <title>San Luis — Relief study</title>
+  </head>
+  <body>
+    <main id="app">
+      <canvas id="terrain" aria-label="Interactive San Luis terrain. Drag or use arrow keys to orbit. Scroll, pinch, or use plus and minus to zoom. Right-drag or shift-arrow to pan. Home resets the view."></canvas>
+      <header>
+        <p class="eyebrow">Colorado · 37°12′ N 105°25′ W</p>
+        <h1>San Luis</h1>
+        <p class="subtitle">A study in relief</p>
+      </header>
+      <div id="status" role="status">Loading terrain…</div>
+      <footer>
+        <p>Drag to orbit <span>·</span> Scroll to approach <span>·</span> Right-drag to pan</p>
+        <button id="reset" type="button">Reset view <span aria-hidden="true">↗</span></button>
+      </footer>
+      <details id="diagnostics">
+        <summary>Study notes</summary>
+        <p>San Luis elevation study</p>
+        <p>PlayCanvas · USGS 3DEP<br />Loading scene details…</p>
+        <output id="metrics"></output>
+      </details>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
