@@ -63,6 +63,19 @@ new textures must be authored or baked separately, with provenance recorded.
   same exported GLB/maps. Blender is an independent inspection consumer, not a second
   delivery-engine project. Standard exports must visibly retain the sculpted detail.
 
+### Portable composition and texel density
+
+Bake the clay/granular/dust blend into unique UV atlases for each inspection mesh.
+Standard glTF materials bind the resulting base colour, normal, roughness and AO;
+the exported look must not require a runtime ID-mask blend or triplanar shader.
+Authoring may use triplanar projection, but bake that result into the portable maps.
+Preview-only projection experiments are labelled and cannot close portability gates.
+For a 2 km patch start with sixteen 500 m atlas cells, each 2048² (about 0.244 m per
+texel on horizontal ground before UV packing/padding). Use 4096² for a cell where
+close-up evidence needs it. Measure actual surface UV density on steep faces;
+subdivide/repack rather than accepting stretched faces. Bake padded UV islands and
+retain multiple ordinary-material primitives where needed; this is not a draw-call cap.
+
 ## 3. Experience and geographic identity
 
 Visitors orbit, pan and zoom from an extent overview into material-rich local
@@ -133,6 +146,12 @@ maps that describe incompatible features.
   Single-image estimated depth may seed a sculpt study, but is not an accepted
   multi-view terrain reconstruction or reliable displacement map.
 
+Runtime height in the comparison must preserve the master's relief precision.
+Decode linear 16-bit height on the CPU and upload a float texture where needed;
+keep an uncompressed float baseline. Compare against any quantised/compressed
+variant before accepting it. A 16-bit PNG file alone does not ensure a 16-bit GPU
+texture after an engine image-loader path.
+
 ### 5.2 Normal mapping correctness
 
 The present shader rotates the second sampling coordinates without reorienting
@@ -148,10 +167,18 @@ rotating diagnostic light to catch flipped axes. Treat normal/height/AO/roughnes
 as linear data and base colour with the appropriate colour-space conversion.
 Use a documented linear-light and output-tone pipeline rather than ad hoc gamma.
 
-Steep faces must retain detail density without streaking. Compare proper baked UVs
-against slope-aware/triplanar projection on the patch. The former blanket prohibition
-on triplanar mapping is withdrawn. Reorient each projection's normals correctly;
-POM with multiple projections needs an explicit implementation and quality check.
+Use glTF tangent normals: RGB encode tangent X/Y/Z, with +X right, +Y up and
++Z outward. Texture (0,0) is the upper-left image corner. For the north-first planar
+calibration fixture, image up corresponds to north; arbitrary UV islands use their
+exported tangent basis, not a universal world-north assumption. Export MikkTSpace-
+compatible tangents and verify a raised/recessed fixture under two light azimuths
+in both consumers. The [glTF specification](https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#materialnormaltextureinfo)
+defines the interchange conventions.
+
+Steep faces must retain detail density without streaking. Bake authoring projections
+into proper UVs for portable acceptance. The former blanket prohibition on triplanar
+mapping is withdrawn for authoring and labelled preview experiments. Reorient each
+projection's normals correctly; multi-projection POM remains an experiment.
 Use derivative-aware sampling, mipmaps and suitable filtering to prevent shimmer.
 
 ### 5.3 Parallax integration and boundaries
@@ -164,6 +191,17 @@ correct implementation in the custom shader; select the simpler path that meets 
 
 Apply the parallax hit coordinates consistently to the co-registered material maps.
 Use the same height convention across authoring, normal derivation and ray marching.
+For a square, uniformly scaled planar calibration material, normalised height
+`h=(height-height_min)/height_range_m` has 1 at the top. The shader UV depth is
+`height_range_m/span_m`, and geometry base is
+`(geometry_height-height_min)/height_range_m`. Start base at 1 for cavity-only
+relief. In PlayCanvas 2.24 the public `heightMapFactor` is multiplied by 0.1 before
+upload, so set the public property to `10*height_range_m/span_m`, not the shader
+factor directly. Confirm displacement against the geometric calibration object.
+For packed/anisotropic UV islands, derive depth conversion from the UV-to-surface
+metric; do not apply this planar scalar formula blindly to the whole atlas.
+Shore fade and per-region amplitude are named shader-extension requirements.
+
 Start the comparison at 16 and 32 maximum view samples with self-shadow off/on;
 these are experiment settings, not claims about quality or speed. Test shallow,
 steep and changing views, including texture seams and material transitions.
@@ -180,14 +218,39 @@ Separate three bands: DEM-driven major forms; sculpted mesoscopic ridge/clod/ban
 geometry; mapped fine grain and pits. Each feature belongs to a declared band so
 height, geometry and normals do not duplicate its full amplitude.
 
+Initial scene-unit scale targets below are art-direction starting values, not
+measurements recovered from generated images. Save changes with the recipe.
+
+| Feature | Initial range in source metres | Close camera starting target |
+|---|---|---|
+| Visible clast diameter | 8–40 m, truncated log-normal, sigma 0.55 | Distinct multi-pixel clasts, roughly 5–40 px where in focus. |
+| Aggregate cluster footprint | 60–300 m | Several clusters and bare faces visible simultaneously. |
+| Ridge fold wavelength | 150–600 m | Silhouette changes visible without normal mapping. |
+| Clast height / radius | 0.2–0.6 | Raised masses with sidewalls; no uniform spikes. |
+| Close camera | 800–1600 m from target; start 1200 m, vertical FOV 40° | Tune framing to reference 04 and record the exact pose. |
+
+Record `feature_scale_m` in recipe and manifest. Recipe must also name cluster
+occupancy (start 35–65% within cluster footprints, under 10% outside), bare-clay
+fraction, local cavity depth (start at least 0.15 of neighbouring clast radius),
+sidewall angle (start 25–65°), slope/curvature/aspect placement weights and fall-line
+scratch direction. Use slope/concavity to concentrate aggregates while leaving
+exposed convex clay. Treat these as tunable shape constraints, not assertions that
+all slopes must obey a physical erosion model. Roughness starts at 0.55–0.8 for
+clay and 0.8–0.95 for aggregates, with sparse worn highlights allowed down to 0.35.
+Review light and roughness together so the result remains dusty rather than lacquered.
+Reject uniform-grid placement with a nearest-neighbour spread calibration; do not
+require a multimodal histogram, since natural clustered samples can be unimodal.
+
 Bake detail normals against each simplified LOD's actual surface, or demonstrate
 that a shared residual normal is valid. Preserve important silhouettes and shore
 vertices during simplification. Share boundary samples, texture padding and spatial
 seeds across tiles; recompute bounds/geometric errors for displaced content.
 Flattening every ridge is not an acceptable LOD optimisation.
 
-Use a fixed warm key with soft shadows and neutral fill. Compare offline baked
-lighting against runtime soft shadows on the patch. Store AO separately and avoid
+Use a fixed warm key with soft shadows and neutral fill. Compare offline rendered
+lighting against runtime soft shadows on the patch. Offline direct-light bakes are
+reference-only unless packaged separately as an explicitly optional extension;
+the standard PBR baseline must remain relightable. Store AO separately and avoid
 baking direct light twice. Runtime shadowing, higher-resolution textures and extra
 geometry are allowed where they visibly improve quality. Optional SSAO, depth of
 field and grading come after the sharp, unblurred scene passes V1–V5.
@@ -227,15 +290,17 @@ Execution detail: [Reference patch implementation plan](superpowers/plans/2026-1
 These replace the original performance-before-fidelity execution order. Every slice
 ends with portable assets, a reproducible preview, saved camera poses and evidence.
 Runtime-specific code is isolated in the preview/delivery adapters.
-Do not rebake the full region until the reference patch passes VS5.
+Do not rebake the full region until the reference patch passes VS5. Before VS5,
+LOD work is a small fixture continuity proof; derive production patch/regional LODs
+from the approved master afterwards.
 
 | Slice | Deliverable | Exit gate |
 |---|---|---|
 | VS1 Reference patch and baseline | Choose a 1–2 km real patch with ridge, steep bank and mapped channel. Save existing render and source overlay. Add elevated, overhead and close cameras plus an adjacent labelled material exemplar if needed. | One command builds the patch package; a separate preview command exposes all three capture poses. The material study is clearly distinguished from San Luis geography. |
-| VS2 Sculpted forms and aggregates | High-detail exemplars and actual mesoscopic ridge/bank/clod geometry, shown in neutral clay in the viewer. | V1/V4 pass without textures or blur; no smooth dune field, floating deposits or generic repeated bumps. |
+| VS2 Sculpted forms and aggregates | High-detail exemplars and actual mesoscopic ridge/bank/clod geometry, shown in neutral clay in Blender, then the preview adapter when available. | V1/V4 pass without textures or blur; no smooth dune field, floating deposits or generic repeated bumps. |
 | VS3 Normal and height comparison | Coherent material maps; switchable baseline, corrected normals, POM, POM with self-shadow and geometry reference on the same patch. | Neutral-map and lighting-direction checks pass. Side-by-side orbit clips show what each method adds; chosen method has no inverted, swimming or stretched relief. |
 | VS4 Integrated material, light and water | Broken ochre/dark transitions, selective dust, soft lighting, natural bank contact and subtle silty shimmer. | V2–V6 pass at all three cameras, including sharp images with effects off and a moving clip. |
-| VS5 Visual acceptance | Evidence board against references 01/03/04, plus optional photographic view referencing 02/05. Record each V1–V8 result and reviewer notes. | User approves the patch's visual look. Standard GLB/maps also import and retain their material identity in Blender. A technical or model review alone does not close this gate. |
+| VS5 Visual acceptance | Evidence board against references 01/03/04, plus optional photographic view referencing 02/05. Record each V1–V8 result and reviewer notes. | User approves the patch's visual look. V1/V2/V4 must also pass on the fresh Blender import of standard GLB/maps at the close camera, without POM or custom shaders. A technical or model review alone does not close this gate. |
 | VS6 Regional rollout | Apply the accepted recipe to Culebra, Rio Grande gorge, Sanchez Reservoir and valley fields, then full extent. | V1–V8 reviewed at named views, geography retained, tile seams and LOD transitions inspected in motion. |
 | VS7 Performance refinement | Measure accepted high-quality scene; introduce documented quality presets and streaming refinements. | Publish actual device/viewport/frame-time/memory/transfer results. Any downgrade must retain approved visual traits; unresolved target misses remain explicit. |
 
@@ -278,6 +343,12 @@ Non-goals: runtime erosion, water simulation, extracting reference-image texture
 Google-derived geometry, reconstruction of the entire model from a photograph,
 unrestricted ground exploration, or building another full runtime application. Overhangs are optional local mesh
 features; POM and terrain heightfields cannot represent them faithfully.
+
+## Review record
+
+[Claude style-plan review](claude-style-review.md) preserves the original findings,
+host verification and documentation corrections. The review predates the corrections;
+no subsequent Claude approval is claimed.
 
 ## 10. Technical sources
 
