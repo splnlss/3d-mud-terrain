@@ -100,3 +100,12 @@ do not establish them.
 Satellite reflectance is reduced to muted tonal variation and NDWI. Google 3D
 Tiles are visual reference only and do not enter the bake or runtime. The style
 photograph is not used as a texture.
+
+### Portable sculpted reference patch
+
+`npm run bake:patch` windows the selected 2 km Culebra Creek foothill reach from
+cached regional DEM/NHD inputs, verifies their pinned hashes, and writes
+`data/style-patch/manifest.json`, source arrays, clipped water and review overlays.
+Run the regional data bake first if the cached inputs are absent. Source masters
+and the package contract are independent of the preview engine. Generated packages
+stay under the ignored `data/` directory. See the [patch plan](docs/superpowers/plans/2026-11-12-sculpted-reference-patch.md).

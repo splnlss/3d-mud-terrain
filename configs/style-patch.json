@@ -1,0 +1,31 @@
+{
+  "dem": "data/san-luis-112640-10.tif",
+  "hydrography": "data/nhd-112640.json",
+  "center_utm_m": [
+    476033.1854901064,
+    4114874.785788303
+  ],
+  "size_m": 2000,
+  "water_names": [
+    "Culebra Creek"
+  ],
+  "selection": {
+    "name": "Culebra Creek foothill reach",
+    "center_wgs84": [
+      -105.27,
+      37.18
+    ],
+    "observed_source_relief_m": 183.17,
+    "observed_source_slope_p95": 0.388,
+    "rejected": {
+      "name": "Rio Grande gorge near -105.74,37.15",
+      "relief_m": 51.47,
+      "slope_p95": 0.173,
+      "reason": "broad plateau and one incision; weak ridge silhouette fixture"
+    }
+  },
+  "source_hashes": {
+    "dem": "caae37a7284ac116b2350090a4e155a757530fda7930b57f39664a92d816a7dc",
+    "hydrography": "75dea8f0bc1b651639cae923168b50afb7590d8037d543e0699938235d3e55b7"
+  }
+}
