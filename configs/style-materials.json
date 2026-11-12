@@ -1,0 +1,12 @@
+{
+  "seed": 4271,
+  "height_gain": 2.6,
+  "fold_amplitude_m": 65,
+  "feature_scale_m": {"clast_diameter": [8,40], "cluster_footprint": [60,300], "fold_wavelength": [150,600]},
+  "clusters": {"cell_m": 240, "radius_m": [55,135], "probability": 0.82, "inside_occupancy": [0.35,0.65], "outside_occupancy_max": 0.1},
+  "clasts": {"radius_m": [4,20], "lognormal_sigma": 0.55, "height_radius": [0.2,0.6], "cavity_depth_radius_min": 0.15, "sidewall_angle_deg": [25,65]},
+  "placement": {"slope_weight": 0.65, "concavity_weight": 0.2, "shaded_aspect_weight": 0.15, "convex_exposure_weight": 0.55, "striation_direction": "fall-line"},
+  "roughness": {"clay": [0.55,0.8], "granular": [0.8,0.95], "worn_min": 0.35},
+  "materials": [{"kind":"clay","span_m":128},{"kind":"granular","span_m":128}],
+  "master_resolution": 2048
+}
