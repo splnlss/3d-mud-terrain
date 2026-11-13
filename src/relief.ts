@@ -13,13 +13,15 @@ const set = query.get('set') ?? 'relief-sample';
 // tileset for the region frame. The key comes from the dev server's environment and is never stored in the repo.
 const google = set === 'google';
 const googleKey = import.meta.env.VITE_GOOGLE_MAPS_KEY as string | undefined;
-// A deployed build reads the tiles from remote storage (VITE_RELIEF_BASE is the published folder of one tileset);
-// the dev server reads the local sets linked under public/.
-const remote = import.meta.env.VITE_RELIEF_BASE as string | undefined;
-const folder = remote ? `${remote.replace(/\/$/, '')}/` : `${import.meta.env.BASE_URL}${google ? 'relief-sample' : set}/`;
+// A deployed build reads the tiles from remote storage: VITE_RELIEF_ROOT is the published folder holding every set.
+// The dev server reads the local sets linked under public/.
+const remote = (import.meta.env.VITE_RELIEF_ROOT as string | undefined)?.replace(/\/$/, '');
+const REMOTE_FOLDERS: Record<string, string> = { 'relief-sample': 'san-luis-relief-sample', 'relief-v2': 'san-luis-relief-v2' };
+const base = google ? 'relief-sample' : set;
+const folder = remote ? `${remote}/${REMOTE_FOLDERS[base] ?? base}/` : `${import.meta.env.BASE_URL}${base}/`;
 const url = `${folder}tileset.json`;
-const SETS: Record<string, string> = remote ? { 'relief-sample': 'San Luis sample (×1.25, walkable)' }
-  : { 'relief-sample': 'San Luis sample (×1.25, walkable)', 'relief-v2': 'Previous relief (mixed scale)', google: 'Google 3D Tiles (true scale)' };
+const SETS: Record<string, string> = { 'relief-sample': 'San Luis sample (×1.25, walkable)', 'relief-v2': 'Previous relief (mixed scale)' };
+if (googleKey) SETS.google = 'Google 3D Tiles (true scale)';
 const optional = async (file: string) => { try { const r = await fetch(folder + file); return r.ok ? r : null; } catch { return null; } };
 
 async function main() {
@@ -150,7 +152,7 @@ async function main() {
   // Irrigation ditches and acequias, draped on the ground map as ribbons. Toggle with the button or D.
   type Ditch = { geometry: { coordinates: number[][] }, properties: { acequia: boolean, name: string | null } };
   const ditchData = google ? null : await (await optional('ditches/ditches.geojson'))?.json() as { features: Ditch[] } | undefined;
-  const ditchLayer = new Entity('ditches'); app.root.addChild(ditchLayer); ditchLayer.enabled = query.get('ditches') !== '0';
+  const ditchLayer = new Entity('ditches'); app.root.addChild(ditchLayer); ditchLayer.enabled = query.get('ditches') === '1';  // off by default
   const toScene = (lon: number, lat: number) => {  // WGS84 longitude/latitude to scene kilometres (x east, z south)
     const a = 6378137, e2 = 6.69437999014e-3, l = lon*Math.PI/180, p = lat*Math.PI/180, n = a/Math.sqrt(1 - e2*Math.sin(p)**2);
     const ecef = [n*Math.cos(p)*Math.cos(l), n*Math.cos(p)*Math.sin(l), n*(1 - e2)*Math.sin(p)];

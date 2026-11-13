@@ -88,10 +88,14 @@ Public entry point (the bucket name is not part of the public path), CORS open:
 `https://pub-dd92ae5131ec49f1bbd411b51a858249.r2.dev/05_3D-tiles/san-luis-relief-sample/tileset.json`
 
 ```sh
-VITE_RELIEF_BASE=https://pub-dd92ae5131ec49f1bbd411b51a858249.r2.dev/05_3D-tiles/san-luis-relief-sample scripts/build-relief-site.sh
+doppler run -p misc_projects -c dev -- sh -c 'VITE_RELIEF_ROOT=https://pub-dd92ae5131ec49f1bbd411b51a858249.r2.dev/05_3D-tiles \
+  VITE_GOOGLE_MAPS_KEY=$NEXT_PUBLIC_GOOGLE_MAPS_TOKEN scripts/build-relief-site.sh'
+doppler run -p misc_projects -c dev -- netlify deploy --dir dist-relief --site san-luis-relief-tiles-20261113 --no-build   # draft deploy
 ```
 
-writes `dist-relief/`, a 3.8 MB static site that reads the tiles from the bucket; host it anywhere.
+writes `dist-relief/`, a small static site that reads the sets from the bucket (`san-luis-relief-sample`, and the
+previous mixed-scale `san-luis-relief-v2`). With the Maps key it also offers the Google 3D Tiles view; the key is then
+visible in the page, so restrict it to the site's address in the Google Cloud console. Ditches start hidden (`?ditches=1` or D).
 
 The preview has three views at one shared camera: new relief, old relief, and Google Photorealistic 3D Tiles (true scale).
 The Google view needs the Maps key in the dev server's environment (it is never written to disk):
