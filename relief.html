@@ -9,12 +9,12 @@
       #info { position: fixed; left: 12px; bottom: 10px; font: 12px/1.4 system-ui; color: #4a4033; }
       #tools { position: fixed; right: 12px; top: 10px; display: flex; gap: 8px; font: 12px/1.4 system-ui; }
       #tools a, #tools button { padding: 5px 9px; border: 1px solid #b8ab97; border-radius: 4px; background: #f3eee6; color: #4a4033; text-decoration: none; font: inherit; cursor: pointer; }
-      #tools a.current { background: #4a4033; color: #f3eee6; border-color: #4a4033; }</style>
+      #tools button.current, #tools a.current { background: #4a4033; color: #f3eee6; border-color: #4a4033; }</style>
   </head>
   <body>
     <canvas id="terrain" aria-label="San Luis relief tiles. Drag to orbit, scroll to zoom, right-drag or shift-drag to pan."></canvas>
     <div id="info">Loading relief tiles…</div>
-    <div id="tools"><span id="sets" style="display: contents"></span><button id="fullscreen" type="button">Full screen (F)</button></div>
+    <div id="tools"><span id="sets" style="display: contents"></span><button id="ditches" type="button" hidden title="Blue: ditches and canals (USGS NHD). Red: acequias (approximate, Colorado DWR priority dates).">Ditches &amp; acequias (D)</button><button id="fullscreen" type="button">Full screen (F)</button></div>
     <script type="module" src="/src/relief.ts"></script>
   </body>
 </html>

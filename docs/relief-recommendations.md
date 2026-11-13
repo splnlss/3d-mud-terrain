@@ -59,3 +59,14 @@ Process and commands: [relief process](relief-process.md). Evidence: `docs/revie
     touches tile authoring should be measured on one tile (`/usr/bin/time -l`) before a parallel bake; an
     unmeasured change exhausted memory and the machine restarted on 2026-11-13.
 25. **Nothing is committed.** All of this work is uncommitted in the worktree.
+
+## Ditches and acequias
+
+26. **NHD misses many acequias.** The Culebra acequias are only partly mapped as lines; Colorado DWR has 114 acequia
+    headgates in the region but far fewer acequia lines. Trace the rest from imagery, or use the acequia
+    association's maps if they can be obtained.
+27. **The acequia flag is a date-and-county approximation**, not the legal definition (governance). Review the list
+    with someone who knows the Culebra acequias.
+28. **Ditches are an overlay only, and only inside the walkable square.** They are not yet carved into the tiles as
+    water; NHD canals are, from level 3, without this naming.
+

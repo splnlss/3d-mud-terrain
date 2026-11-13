@@ -68,6 +68,18 @@ Rules for this set: one exaggeration (×1.25); the mesh is the real terrain plus
 identical at every level; all other clay detail is shading. Below about 12 m mesh spacing, stream beds dip and buildings stand.
 Each tile peaks at about 3.5 GB of memory while baking.
 
+### Irrigation ditches and acequias
+
+```sh
+uv run python -m bake.style.ditches --output <set>/ditches
+```
+
+writes `ditches.geojson` (2,413 km of NHD canal and ditch lines, with name, Colorado water-right number and earliest
+appropriation date where a headgate is within 400 m), `headgates.geojson` (924 ditch headgates from Colorado DWR),
+and review maps. Acequias are flagged approximately: a Costilla or Conejos county ditch whose first right predates 1880,
+or whose name says acequia; the flag spreads along segments sharing a name. New Mexico ditches have NHD names only.
+The preview drapes them on the ground map (button or D; blue ditches, red acequias) inside the 44 km walkable square.
+
 ### Published sample and static site
 
 The sample is uploaded to Cloudflare R2, bucket `demo-assets`, prefix `05_3D-tiles/san-luis-relief-sample/`

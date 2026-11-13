@@ -1,5 +1,5 @@
 /** Preview adapter for the geo-registered relief tileset (public/relief/tileset.json). */
-import { ADDRESS_REPEAT, Application, Color, DETAILMODE_OVERLAY, Entity, FILLMODE_FILL_WINDOW, Mat4, Quat, RESOLUTION_AUTO, Vec3, basisInitialize, createGraphicsDevice, dracoInitialize, TONEMAP_ACES, TONEMAP_NONE, Vec2 } from 'playcanvas';
+import { ADDRESS_REPEAT, Application, Color, DETAILMODE_OVERLAY, Entity, Mesh, MeshInstance, StandardMaterial as Standard, FILLMODE_FILL_WINDOW, Mat4, Quat, RESOLUTION_AUTO, Vec3, basisInitialize, createGraphicsDevice, dracoInitialize, TONEMAP_ACES, TONEMAP_NONE, Vec2 } from 'playcanvas';
 import type { Asset, RenderComponent, StandardMaterial, Texture } from 'playcanvas';
 import { TilesRenderer } from '3d-tiles-renderer/playcanvas';
 import { GoogleCloudAuthPlugin } from '3d-tiles-renderer/core/plugins';
@@ -147,6 +147,45 @@ async function main() {
     });
     tools.append(link);
   }
+  // Irrigation ditches and acequias, draped on the ground map as ribbons. Toggle with the button or D.
+  type Ditch = { geometry: { coordinates: number[][] }, properties: { acequia: boolean, name: string | null } };
+  const ditchData = google ? null : await (await optional('ditches/ditches.geojson'))?.json() as { features: Ditch[] } | undefined;
+  const ditchLayer = new Entity('ditches'); app.root.addChild(ditchLayer); ditchLayer.enabled = query.get('ditches') !== '0';
+  const toScene = (lon: number, lat: number) => {  // WGS84 longitude/latitude to scene kilometres (x east, z south)
+    const a = 6378137, e2 = 6.69437999014e-3, l = lon*Math.PI/180, p = lat*Math.PI/180, n = a/Math.sqrt(1 - e2*Math.sin(p)**2);
+    const ecef = [n*Math.cos(p)*Math.cos(l), n*Math.cos(p)*Math.sin(l), n*(1 - e2)*Math.sin(p)];
+    const d = [ecef[0] - centre[0], ecef[1] - centre[1], ecef[2] - centre[2]];
+    return [dot(d, east)*scale, -dot(d, north)*scale];
+  };
+  const ditchLines = (ditchData?.features ?? []).map(f => ({ acequia: f.properties.acequia, points: f.geometry.coordinates.map(([lon, lat]) => toScene(lon, lat)) }));
+  let ditchWidth = 0;
+  const buildDitches = (width: number) => {
+    ditchWidth = width; ditchLayer.children.slice().forEach(child => child.destroy());
+    for (const acequia of [false, true]) {
+      const positions: number[] = [], indices: number[] = [];
+      for (const line of ditchLines.filter(l => l.acequia === acequia)) {
+        const pts = line.points.map(([x, z]) => [x, z, ground(x, z)] as const).filter(p => p[2] !== null) as [number, number, number][];
+        for (let i = 0; i + 1 < pts.length; i++) {
+          const [x0, z0, y0] = pts[i], [x1, z1, y1] = pts[i + 1], len = Math.hypot(x1 - x0, z1 - z0) || 1;
+          const w = (acequia ? 1.5 : 1)*width/2, nx = -(z1 - z0)/len*w, nz = (x1 - x0)/len*w, lift = .002 + width*.2, b = positions.length/3;
+          positions.push(x0 + nx, y0 + lift, z0 + nz, x0 - nx, y0 + lift, z0 - nz, x1 + nx, y1 + lift, z1 + nz, x1 - nx, y1 + lift, z1 - nz);
+          indices.push(b, b + 2, b + 1, b + 1, b + 2, b + 3);
+        }
+      }
+      if (!positions.length) continue;
+      const mesh = new Mesh(app.graphicsDevice); mesh.setPositions(positions); mesh.setIndices(indices); mesh.update();
+      const material = new Standard(); material.useLighting = false; material.diffuse = new Color(0, 0, 0); material.cull = 0;
+      material.emissive = acequia ? new Color(.85, .12, .1) : new Color(.1, .45, .95); material.update();
+      const holder = new Entity(acequia ? 'acequias' : 'ditches'); holder.addComponent('render', { meshInstances: [new MeshInstance(mesh, material)] });
+      ditchLayer.addChild(holder);
+    }
+  };
+  const ditchButton = document.querySelector<HTMLButtonElement>('#ditches')!;
+  ditchButton.hidden = !ditchLines.length;
+  const showDitches = (on: boolean) => { ditchLayer.enabled = on; ditchButton.className = on ? 'current' : ''; };
+  showDitches(ditchLayer.enabled);
+  ditchButton.addEventListener('click', () => showDitches(!ditchLayer.enabled));
+  addEventListener('keydown', event => { if (event.key === 'd' || event.key === 'D') showDitches(!ditchLayer.enabled); });
   canvas.addEventListener('wheel', event => {
     event.preventDefault();
     // Over the mapped square the camera may come within two metres of the ground.
@@ -166,6 +205,9 @@ async function main() {
     if (below !== null) eye.y = Math.max(eye.y, below + .0017);  // never under the ground: eye height at least 1.7 m
     camera.setPosition(eye);
     camera.lookAt(new Vec3(orbit.x, orbit.height, orbit.z));
+    // Ribbons stay readable at any distance: about 2 px wide, never narrower than 3 m on the ground.
+    const width = Math.max(.003, orbit.distance*.0016);
+    if (ditchLines.length && ditchLayer.enabled && (width > ditchWidth*1.6 || width < ditchWidth/1.6)) buildDitches(width);
     camera.camera!.nearClip = Math.max(.0003, orbit.distance/200);
     camera.camera!.farClip = Math.max(60, orbit.distance*40);
     tiles.update();
