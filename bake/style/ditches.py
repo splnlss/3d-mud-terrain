@@ -80,10 +80,10 @@ def build(output, work):
     named = {}
     for f in features:
         p = f['properties']
-        if p['name'] and p['acequia']: named.setdefault(p['name'], p)
+        if p['name'] and p['acequia'] and (p['name'] not in named or (p['appropriated'] or '9') < (named[p['name']] or '9')): named[p['name']] = p['appropriated']
     for f in features:
         p = f['properties']
-        if p['name'] in named and not p['acequia']: p.update(acequia=True, appropriated=p['appropriated'] or named[p['name']]['appropriated'])
+        if p['name'] in named: p.update(acequia=True, appropriated=named[p['name']])  # a ditch dates from its oldest right
     attribution = 'USGS National Hydrography Dataset; Colorado Division of Water Resources (CDSS)'
     (output / 'ditches.geojson').write_text(json.dumps({'type': 'FeatureCollection', 'attribution': attribution, 'features': features}))
     (output / 'headgates.geojson').write_text(json.dumps({'type': 'FeatureCollection', 'attribution': attribution, 'features': [
