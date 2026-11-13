@@ -1,0 +1,30 @@
+{
+  "mode": "built-in image_gen",
+  "images": [
+    {
+      "name": "01-braided-channels",
+      "prompt": "Create one standalone landscape image inspired by the user's TWO attached reference photographs of a physical terrain model. Use both photographs as subject/material/style references. Preserve the handmade sculptural character: lumpy eroded clay mountains, granular dark grey mud crusts, ochre brown ridges, pale beige silty winding channels, miniature terrain realism, muted warm earth palette, highly tactile surfaces. Fine art architectural model photography, not a smooth CGI landscape. No text, labels, borders, collage, buildings or added people. Elevated oblique wide view across a dense maze of braided pale silt channels and low rugged clay islands. Deep focus with detailed foreground, soft warm diffuse daylight, closely matching the first reference's tonal quality. Edge-to-edge terrain.",
+      "source": "/Users/splnlss/.codex/generated_images/01a1cfca-b2ba-73a3-887b-07705f60b0b0/exec-dbf7d27f-be2a-4838-b4b7-94ad763b9178.png"
+    },
+    {
+      "name": "02-ridge-level",
+      "prompt": "Create one standalone landscape image inspired by the user's TWO attached reference photographs of a physical terrain model. Use both photographs as subject/material/style references. Preserve the handmade sculptural character: lumpy eroded clay mountains, granular dark grey mud crusts, ochre brown ridges, pale beige silty winding channels, miniature terrain realism, muted warm earth palette, highly tactile surfaces. Fine art architectural model photography, not a smooth CGI landscape. No text, labels, borders, collage, buildings or added people. Low camera at model surface height looking through a narrow valley between jagged handmade mountain ridges. Warm raking gallery light, shallow photographic depth of field, near foreground and far backdrop gently blurred, central clay ridge sharply resolved, inspired by the second reference. Frame only terrain with no visitors or gallery furniture.",
+      "source": "/Users/splnlss/.codex/generated_images/01a1cfca-b2ba-73a3-887b-07705f60b0b0/exec-06a0946f-adde-45d7-90b3-40ae91ae58a8.png"
+    },
+    {
+      "name": "03-overhead-delta",
+      "prompt": "Create one standalone landscape image inspired by the user's TWO attached reference photographs of a physical terrain model. Use both photographs as subject/material/style references. Preserve the handmade sculptural character: lumpy eroded clay mountains, granular dark grey mud crusts, ochre brown ridges, pale beige silty winding channels, miniature terrain realism, muted warm earth palette, highly tactile surfaces. Fine art architectural model photography, not a smooth CGI landscape. No text, labels, borders, collage, buildings or added people. Near vertical overhead composition, abstract branching river delta winding among densely textured muddy landforms. Organic pale channels form elegant negative space through dark grey and sandy ochre clay. Soft even illumination, crisp fine surface detail, museum art photograph.",
+      "source": "/Users/splnlss/.codex/generated_images/01a1cfca-b2ba-73a3-887b-07705f60b0b0/exec-e351cf73-37d5-4ab4-aaae-051ca722d127.png"
+    },
+    {
+      "name": "04-canyon",
+      "prompt": "Create one standalone landscape image inspired by the user's TWO attached reference photographs of a physical terrain model. Use both photographs as subject/material/style references. Preserve the handmade sculptural character: lumpy eroded clay mountains, granular dark grey mud crusts, ochre brown ridges, pale beige silty winding channels, miniature terrain realism, muted warm earth palette, highly tactile surfaces. Fine art architectural model photography, not a smooth CGI landscape. No text, labels, borders, collage, buildings or added people. Intimate oblique close-up of a sinuous pale silty channel passing between steep craggy clay canyon walls. Layered erosion, granular crusts and small handmade tool marks visible. Warm light skims ridge tops, soft shadowed crevices, photographic depth, fill the entire frame with the model.",
+      "source": "/Users/splnlss/.codex/generated_images/01a1cfca-b2ba-73a3-887b-07705f60b0b0/exec-d362b0e7-88c1-40f6-94ab-e6381d3236be.png"
+    },
+    {
+      "name": "05-layered-peaks",
+      "prompt": "Create one standalone landscape image inspired by the user's TWO attached reference photographs of a physical terrain model. Use both photographs as subject/material/style references. Preserve the handmade sculptural character: lumpy eroded clay mountains, granular dark grey mud crusts, ochre brown ridges, pale beige silty winding channels, miniature terrain realism, muted warm earth palette, highly tactile surfaces. Fine art architectural model photography, not a smooth CGI landscape. No text, labels, borders, collage, buildings or added people. Expansive low oblique view over successive rows of sculpted clay peaks, pale meandering channels visible between them. Warm softly backlit summits, charcoal grey recesses, sandy beige highlights, gentle depth of field and atmospheric softness toward the rear. Rich sculptural relief, refined fine art photograph, no sky or room visible.",
+      "source": "/Users/splnlss/.codex/generated_images/01a1cfca-b2ba-73a3-887b-07705f60b0b0/exec-f582af0c-606e-4de3-bd73-6b695f57c860.png"
+    }
+  ]
+}

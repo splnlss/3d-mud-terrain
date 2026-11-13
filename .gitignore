@@ -3,3 +3,27 @@
 .paradev/workspace.env
 .paradev/ports.json
 .paradev/config.local.json
+
+# Reproducible generated assets and downloaded source data
+node_modules/
+.venv/
+__pycache__/
+.pytest_cache/
+dist/
+data/
+public/terrain/
+public/wasm/
+public/.*-build-*/
+public/.*-previous-*/
+.superpowers/
+
+# Local recovery history predating the reviewed implementation
+/ticket-commits.bundle
+
+# Generated relief tileset (symlink to data/relief-tiles)
+public/relief
+public/relief-v2
+public/relief-v3
+public/relief-test
+public/relief-sample
+dist-relief/

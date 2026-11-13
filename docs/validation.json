@@ -1,0 +1,127 @@
+{
+  "tests": {
+    "python": 36,
+    "typescript": 8,
+    "result": "passed; tsc also checks TypeScript tests"
+  },
+  "production_build": "passed; Vite large-chunk warning remains",
+  "assets": {
+    "tiles": 341,
+    "waterTiles": 335,
+    "totalBytes": 66513336,
+    "errors": [],
+    "warningCounts": {},
+    "note": "Khronos glTF validation plus local implicit-quadtree availability and decoded bounds checks."
+  },
+  "measurements": {
+    "desktop": {
+      "capturedAt": "2026-11-12T01:13:07.110Z",
+      "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3 Pro, Unspecified Version)",
+      "viewport": [
+        1280,
+        720,
+        2
+      ],
+      "renderResolution": [
+        2560,
+        1440
+      ],
+      "valid": true,
+      "reasons": [],
+      "durationMs": 60000.09999999404,
+      "fps": 119.99980000034526,
+      "p95Ms": 9.899999991059303,
+      "within16_7Percent": 100,
+      "peakDraws": 22,
+      "peakGpuBytes": 81357440,
+      "budgetsPass": true,
+      "capture": {
+        "screencast": false,
+        "cacheDisabled": false,
+        "host": "Visible Paradev pane; navigation via CDP"
+      },
+      "firstViewBytes": 3367370,
+      "qualification": "Desktop browser evidence. Phone viewport emulation, where used, is not physical phone qualification."
+    },
+    "mobile": {
+      "capturedAt": "2026-11-12T01:14:48.311Z",
+      "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3 Pro, Unspecified Version)",
+      "viewport": [
+        390,
+        844,
+        3
+      ],
+      "renderResolution": [
+        1170,
+        2532
+      ],
+      "valid": true,
+      "reasons": [],
+      "durationMs": 60008.70000000298,
+      "fps": 119.99926677297863,
+      "p95Ms": 9.800000011920929,
+      "within16_7Percent": 99.98611303985557,
+      "peakDraws": 9,
+      "peakGpuBytes": 70846106,
+      "budgetsPass": true,
+      "capture": {
+        "screencast": false,
+        "cacheDisabled": false,
+        "host": "Visible Paradev pane; navigation via CDP"
+      },
+      "firstViewBytes": 3367370,
+      "qualification": "Desktop browser evidence. Phone viewport emulation, where used, is not physical phone qualification."
+    }
+  },
+  "presentation_baseline": {
+    "viewport": [
+      1280,
+      720,
+      2
+    ],
+    "renderResolution": [
+      2560,
+      1440
+    ],
+    "renderer": "ANGLE Metal Apple M3 Pro",
+    "capture": {
+      "screencast": false
+    },
+    "blankRaf": {
+      "frames": 362,
+      "durationMs": 3004.8,
+      "fps": 120.4739
+    },
+    "emptyWebGlClear": {
+      "frames": 60,
+      "durationMs": 3000.4,
+      "fps": 19.9973
+    },
+    "method": "Same foreground, focused, visible Paradev pane. Blank about:blank rAF loop, then canvas WebGL2 antialias:false high-performance clearColor and clear on each frame. No scene or library in baseline.",
+    "conclusion": "Embedded WebGL presentation is limited near 20 fps here even for an empty clear; neither this nor screencast-assisted diagnostics qualify standalone-browser or phone performance."
+  },
+  "open_gates": [
+    "Physical iPhone 12 measurements",
+    "Physical Snapdragon 7-series measurements",
+    "S1 ridge-scale clod morphology",
+    "S2 broken clumpy material / readable pitted clasts",
+    "S4 shore facet cleanup",
+    "Investigate smoothing from discarded water pixels",
+    "Water clip visual review"
+  ],
+  "error_recovery": {
+    "blockedRootMask": true,
+    "message": "Some terrain could not load. Check your connection and retry. Retry view",
+    "recovered": true,
+    "engine": "PlayCanvas"
+  },
+  "claude_review": {
+    "completed": true,
+    "passes": 2,
+    "model": "claude-fable-5-1",
+    "technical_verdict": "Original confirmed code defects closed; no remaining P1 technical blocker confirmed",
+    "visual_signoff": false
+  }
+}

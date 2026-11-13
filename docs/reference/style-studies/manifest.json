@@ -1,0 +1,26 @@
+{
+  "role": "User-supplied generated style studies; visual targets, not geographic evidence or calibrated material maps",
+  "source_directory": "/Users/splnlss/.paradev/worktrees/3d-mud-terrain/create-5-images-using-a8c4ce1f/output/imagegen",
+  "images": [
+    {
+      "file": "01-braided-channels.png",
+      "sha256": "660f1877429e6f54dbdc7efb8624b603bc32bb0e1d3297d9f6c46cbe83caf8d0"
+    },
+    {
+      "file": "02-ridge-level.png",
+      "sha256": "983c09d6574a8274614ebde428a90cff9190f32a3505bb49b7d3293c940f01cd"
+    },
+    {
+      "file": "03-overhead-delta.png",
+      "sha256": "3ed9f76b68ef51475abfc15f35ca3ad39e1f022f2033f5256ecc21190c73a851"
+    },
+    {
+      "file": "04-canyon.png",
+      "sha256": "e8b57bdeaea5d60b2119179776cf63e4792bcaf349787b7c220a4ac56aba7e77"
+    },
+    {
+      "file": "05-layered-peaks.png",
+      "sha256": "527214ea331d80795a40dd492d575f1d53cf5d1638d624e48982e55df030b57e"
+    }
+  ]
+}

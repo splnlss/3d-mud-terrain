@@ -1,0 +1,35 @@
+:root { font-family: Georgia, 'Times New Roman', serif; color: #443b2e; background: #e5dfd3; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+#app, #terrain { width: 100%; height: 100dvh; display: block; }
+#terrain { touch-action: none; outline: none; }
+header { position: absolute; top: 44px; left: 48px; pointer-events: none; }
+header { text-shadow: 0 1px 2px #e5dfd3, 0 0 14px #e5dfd3; }
+.eyebrow, .subtitle, footer, #status, #diagnostics { font-family: system-ui, sans-serif; }
+.eyebrow { font-size: 10px; text-transform: uppercase; letter-spacing: .18em; }
+h1 { font-weight: 400; font-size: clamp(42px, 6vw, 72px); letter-spacing: -.055em; margin: 14px 0 3px; line-height: 1; }
+.subtitle { font-size: 12px; letter-spacing: .08em; color: #776c5a; }
+#status { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); max-width: 90vw; text-align: center; font-size: 13px; background: #ece6dbe8; padding: 14px 20px; border-radius: 3px; }
+#status[hidden] { display: none; }
+footer { position: absolute; bottom: 30px; left: 48px; right: 48px; display: flex; align-items: center; justify-content: space-between; gap: 20px; font-size: 11px; color: #716653; }
+footer span { margin: 0 8px; color: #a29782; }
+button { color: inherit; background: #ece7dccc; border: 1px solid #b8ad9766; padding: 10px 13px; cursor: pointer; font: inherit; border-radius: 2px; }
+button:hover { background: #f6f0e6; }
+button:focus-visible, summary:focus-visible { outline: 2px solid #7e6643; outline-offset: 4px; }
+#diagnostics { position: absolute; top: 48px; right: 48px; font-size: 11px; line-height: 1.7; max-width: 250px; }
+#diagnostics[open] { background: #eee8dded; padding: 14px 18px; border: 1px solid #b8ad9766; }
+summary { cursor: pointer; letter-spacing: .07em; }
+summary { background: #ece7dce6; padding: 3px 7px; border-radius: 2px; }
+footer p { background: #ece7dcdb; padding: 5px 8px; border-radius: 2px; }
+label { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 8px 0; }
+input[type="range"] { width: 110px; accent-color: #8c754f; }
+select { display: block; width: 100%; color: inherit; background: #f2ecdf; border: 1px solid #b8ad97; padding: 7px; font: inherit; margin: 6px 0 12px; }
+#terrain:focus-visible { outline: 2px solid #8c754f; outline-offset: -4px; }
+output { display: block; font-variant-numeric: tabular-nums; }
+@media (max-width: 600px) {
+  header { top: 26px; left: 24px; }
+  #diagnostics { top: 28px; right: 24px; max-width: 185px; }
+  footer { bottom: 20px; left: 24px; right: 24px; }
+  footer p { max-width: 190px; line-height: 1.8; }
+  footer span { margin: 0 3px; }
+}

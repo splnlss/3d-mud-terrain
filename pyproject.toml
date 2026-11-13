@@ -1,0 +1,22 @@
+[project]
+name = "san-luis-relief-bake"
+version = "0.1.0"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+    "numpy>=2.2,<3",
+    "rasterio>=1.4,<2",
+    "pydelatin>=0.3,<1",
+    "scipy>=1.15,<2",
+    "pillow>=11,<13",
+    "shapely>=2,<3",
+    "mapbox-earcut>=2,<3",
+    "fiona>=1.10,<2",
+    "dracopy>=2.2.0",
+]
+
+[dependency-groups]
+dev = ["pytest>=8,<10"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
