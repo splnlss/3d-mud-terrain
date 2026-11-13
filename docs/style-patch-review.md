@@ -1,4 +1,69 @@
-# Sculpted reference patch: work in progress
+# Failed visual attempts and current state
+
+Snapshot: 2026-11-12. **No accepted visual result.**
+Read the supplied images and [current visual PRD](visual-style-prd.md) first.
+For resume instructions and exact workspace/asset state use [Claude handoff](claude-handoff.md).
+
+## Failure ledger
+
+| Attempt | Evidence / implementation | Outcome and lesson |
+|---|---|---|
+| Original regional viewer | [Close render](evidence/08-close.jpg), other named views in `docs/evidence/` | User described the quality as subpar and unlike the source. A functioning geographic viewer did not establish the required surface appearance. |
+| Early dense source: rounded masses and compound clasts | `surface.py`, `blender_preview.py`; original critique transcribed below | Rounded masses read as inflated domes; compound sphere groups read as separate raspberry-like clusters. Dense geometry itself was not the missing ingredient. Early review advice was an art hypothesis, not a new style specification. |
+| Ridge segments, shelves, denser fractured clasts and mapped banks | [Source close view](reviews/shape-draft/source-close.png); current `configs/style-materials.json` | Sharp peaks, repeating ridge profiles and scattered plate-like chips persisted. More fragments and steeper crests changed the object without establishing resemblance. This source is approximately 801² vertices plus 76k instances, not a deliberately low-poly render. |
+| Generated granular stamp image | [Image study](reference/material-studies/granular-study-v1.png) | Contained baked lighting. Kept only as a shape study; explicitly not interpreted as height/normal data. A plausible image is not a coherent relightable material. |
+| Geometry-baked granular stamp on terrain | [Channel](reviews/texture-draft/channel.png), [detail](reviews/texture-draft/detail.png); `material_stamp.py`, `stamp_maps.py`, `textured_draft.py` | Added grain, but plate/crackle character, steep-face stretching and detached fragments remained. Height was baked but this preview used normal/AO/roughness shading, not terrain displacement. |
+| Reference-guided colour plus independently authored granular relief, v2–v4 | [Colour candidate](reference/material-studies/clay-albedo-v2.png); `granular.py`, `material_refinement.py`; [Claude critique](reviews/texture-draft/claude-material-review.md) | v2 became too dark and uniformly gritty, with misplaced wet sheen. Fill, colour and roughness adjustments improved some cues. Generated colour retained residual shading and was not point-for-point registered to authored relief. This is not an accepted production PBR set. |
+| Colour/finish iterations v5–v6 | [Latest channel](reviews/texture-draft/refined-channel.png), [detail](reviews/texture-draft/refined-detail.png), [comparison](reviews/texture-draft/material-comparison.jpg); [Claude follow-up on v4](reviews/texture-draft/claude-material-followup.md) | v5 pushed crust too blue and exposed water triangle highlights. v6 corrected tint and water shading, but the user still said “yeah not close”. Conical forms, plate fragments and weak connected detail remained. Adjusting hue/specularity over the wrong forms was insufficient. |
+| Continuous procedural specimen | [Render](reviews/clay-study/procedural-study.png); `clay_study.py`, `blender_clay_study.py` | Self-assessed failure: regular ridges/grooves, smooth dark dots and overly soft surfaces. Continuous geometry alone did not reproduce nested irregular detail. This is a 1.2 m diagnostic specimen, not the San Luis patch. No user approval. |
+| Registered scan on specimen | [Render](reviews/clay-study/scan-study.png), [notes/provenance](reviews/clay-study/README.md); `fetch_clay_scan.py`, study renderer `--scan` | Self-assessed failure: finer registered material detail, but too uniform/grey and lacking the large connected features and colour boundaries visible in the references. Generic mud texture was not a substitute for image matching. No user approval. |
+| Image-matched relief specimen | [Boards and notes](reviews/relief-study/README.md); `relief_study.py`, `blender_relief_study.py` | User called the direction good and listed mound shape, clay detail and nodules as still off; refined since. Self-assessed as the first result in the reference family (connected nodule crust, ochre faces, pale channel), with listed gaps in mound roundness, apron extent and fine clay detail. Specimen only; not transferred to San Luis. |
+| Relief style on the real patch | [Boards and notes](reviews/relief-patch/README.md); `relief_patch.py` | Open, awaiting user judgement. Creek from NHD, gully from DEM drainage, land from DEM height above channel; fields, crust and light/dark tone from NAIP imagery. Source render only, no portable export yet. |
+| Verbal “sandbox” interpretation | No new sandbox-specific geometry or material was made; only exploratory asset lookup | Superseded by the user's explicit instruction to use only images as visual authority. Do not use a verbal analogy or material name to invent the appearance. |
+
+The specimens were self-assessed as failed diagnostics. The explicit latest user
+rejection concerned the regional material result; do not invent user feedback on
+images they did not separately evaluate.
+
+## What failed in the process
+
+- Procedural shape formulas were chosen before demonstrating their visual fit,
+  then colour, noise and roughness were adjusted around those wrong forms.
+- Each local correction was treated too optimistically. Claude's observations
+  sometimes became implementation prescriptions instead of being checked against
+  the actual reference images. Earlier reviews disagree about crest/cluster forms;
+  resolve that through the images, not by choosing one review as authority.
+- Small-scale grain was added while larger connected deposits, material transitions
+  and silhouette variation were still wrong. A high polygon count did not fix that.
+- Some material changes also changed exposure/fill, so their comparisons cannot
+  isolate the texture's contribution. Preserve settings and matched views next time.
+- Generated colour and independently authored relief were not fully registered;
+  residual painted shading could conflict with actual highlights.
+- The specimens exposed additional problems but were not transferred back onto
+  the real terrain. They cannot close geographic or portable-package acceptance.
+
+## Reusable technical work and open gates
+
+Reuse deterministic inputs, coordinate conventions, staged publication, actual
+mapped water, explicit stale-export rejection, normal/height fixtures and the
+standard GLB baseline where useful. Re-evaluate artistic recipes from the images.
+
+Last full test run: **58 Python + 8 TypeScript passed** (`data/clay-study-tests.log`).
+These counts demonstrate technical checks, not visual similarity. No new test run
+is claimed for this documentation update. The latest Blender study renders exited
+successfully; the older sixteen-cell GLB validation predates all recent source
+changes. Browser technique comparison, current portable parity, moving-view
+acceptance, production LOD and VS5 user approval remain open.
+
+## Reading the historical notes below
+
+The following chronological record preserves experiments, exact critiques and
+commands. Its “current/latest” labels and older test counts refer to the time of
+each entry. They do not override the summary above or the image-only PRD.
+Quoted critique is advisory, and comments about a material's physical identity or
+how it was made are reviewer interpretations rather than established facts.
+
+# Historical implementation notes
 
 The selected source is a 2 km Culebra Creek foothill reach near -105.27, 37.18.
 [Patch configuration](../configs/style-patch.json) pins the input hashes and records
@@ -97,3 +162,154 @@ now rejects stale delivery assets, so the older 16-GLB format result cannot be
 mistaken for a validation of the current authored scene. Latest numerical suite:
 56 Python and 8 TypeScript tests passed; production build passed with the existing
 Vite bundle-size warning. These results do not imply visual acceptance.
+
+## Textured draft — 2026-11-12
+
+The next visual probe combines the existing sculpted source mesh with a
+geometry-derived granular texture. It does not require the mesh silhouette to
+be final before judging the surface.
+
+Reproduce:
+
+```sh
+blender --background --python-exit-code 1 --python bake/style/material_stamp.py -- --output data/granular-stamp --resolution 2048
+uv run python -m bake.style.stamp_maps data/granular-stamp
+blender --background --python-exit-code 1 --python bake/style/textured_draft.py -- --package data/style-patch --stamp data/granular-stamp
+```
+
+The 64 m repeat contains deterministic authored fractured geometry, baked into
+linear normal, height and ray-traced AO maps. Height spans 0–3.242 m in the
+current stamp. PNG normal, 16-bit height, float height and ORM outputs are
+engine-independent. Height and roughness are available for later displacement
+and material LOD; this draft uses tangent-space normal shading, cavity shading
+and height-dependent roughness. It does **not** displace the terrain with the
+stamp. AO remains separate from intrinsic colour; the source preview multiplies
+it in the material because Blender Principled has no separate AO input.
+
+Outputs are `data/style-patch/review/textured-close.png`,
+`textured-detail.png` and the packed editable `source/textured-draft.blend`.
+The original master and old GLB exports are not replaced. This is an offline
+source preview, not proof of the PlayCanvas or GLB result. Visual acceptance
+remains open.
+
+Observed after rendering: the texture adds visible surface grain, but the
+planar mapping stretches on steep faces and the large dark fragments still
+read as scattered additions rather than fused crust. The material appears too
+uniform and pale compared with the canyon reference. These are unresolved
+visual gaps. Next refine surface projection, material colour variation and
+fragment integration together. Portable review copies are in
+`docs/reviews/texture-draft/channel.png` and `detail.png`.
+
+## Material refinement v2
+
+User requested closer colour, texture and reflectivity. New colour candidate:
+`docs/reference/material-studies/clay-albedo-v2.png`, guided by canyon study 04.
+Independent fused granular relief replaces the previous plate-like height
+stamp. `bake/style/granular.py` writes 2K normal, 16-bit height, AO, roughness,
+wetness, dust and ORM maps with a 32 m repeat. Current height range is
+0.00456–0.46511 m; roughness is 0.383–0.96. Low-frequency finish patches create
+variation between satin clay and matte dust. This is an artistic interpretation,
+not a measured BRDF fit to the photograph.
+
+`bake/style/material_refinement.py` applies the colour and physical height using
+world-space box projection with blending on steep faces, plus fine pore bump.
+The same colour family on the fragments reduces the disconnected dark-chip
+appearance. Dielectric IOR is 1.48, specular IOR level 0.45, no clearcoat.
+The source geometry and lighting remain unchanged, but exposure is reduced
+from +1.0 to +0.1 stops; comparisons therefore include this exposure change.
+The current shader uses height bump, not displacement; normal maps remain
+available for portable export. Generated colour retains residual shading and
+is not exactly registered to the authored geometry maps.
+
+```sh
+uv run python -m bake.style.granular --output data/clay-material-v2 --resolution 2048
+blender --background --python-exit-code 1 --python bake/style/material_refinement.py -- --package data/style-patch --maps data/clay-material-v2 --albedo docs/reference/material-studies/clay-albedo-v2.png
+```
+
+### Independent material review and follow-up
+
+Claude's read-only art review is saved in
+`docs/reviews/texture-draft/claude-material-review.md`. It found v2 too dark,
+uniformly gritty and short of satin sheen. Accepted follow-ups: lift ambient
+fill, use spatially varied grey/ochre tint, reduce pore bump, suppress granular
+relief on exposed clay, and lower the dry clay roughness range. The next pass
+uses dry roughness approximately 0.53–0.76, with a 0.43 shoreline finish.
+The pale channel is muted from nearly white to taupe and given glancing sheen.
+
+Claude interpreted the canyon reference channel as wet mud. This is plausible
+for that study but does not replace the agreed opaque silty-water requirement;
+the mapped channel remains water. Its appearance is refined instead. The
+remaining conical silhouettes, flat plate-like clasts and abrupt banks are
+source geometry problems, not solved by these material changes.
+
+Claude's follow-up on v4 confirmed a material improvement and identified two
+remaining gaps: insufficient cool/dark crust versus pale matrix separation,
+and the conical landform language. The follow-up is saved alongside the first
+review as `claude-material-followup.md`. The final material pass in this iteration
+reduces matrix colour saturation to 0.65, crust saturation to 0.25, adds a cooler
+crust tint, and lightens silt. Water shading uses smooth normals to remove
+triangle highlights exposed by the new sheen. This changes shading normals,
+not mapped water positions. Render names are `material-v5-close.png` and
+`material-v5-detail.png`. These remain source previews; old GLB exports are stale.
+
+### Current reviewed source draft: material v6
+
+Current source shader is `bake/style/material_refinement.py` (default tag v6).
+After checking v5, the crust was pulled from blue-grey back toward warm charcoal.
+Silty water now uses a constant upward shading normal and roughness 0.48; this
+removes the triangular specular pattern without changing its mapped positions.
+Current review copies: `docs/reviews/texture-draft/refined-channel.png` and
+`refined-detail.png`. These replace no earlier evidence. Quality remains below
+the photo target: silhouettes are too conical and nodules too plate-like; coarse
+stratified relief, clod clustering and clay/crust transitions need further work.
+Generated colour is a draft with residual shading, and authored microrelief is
+not point-for-point registered to it. No visual acceptance or GLB parity claimed.
+
+## Rejected direction and continuous clay study
+
+User rejected material v6 as still not close, then asked whether low-poly
+constraints caused the mismatch. They did not: the source was dense and no
+performance budget constrained these previews. The failed choices were pointed
+landform stamps, flat plate fragments, excessively uniform microtexture, and
+trying to fix their read mainly through colour/roughness.
+
+A bounded physical specimen is now authored by `bake/style/clay_study.py` and
+rendered by `bake/style/blender_clay_study.py`. It uses one continuous height
+surface: rounded ridge crests, concave slumped flanks, incised downhill runnels,
+embedded rounded grain clusters, smooth clay and physically varied finish.
+Colour, roughness and depth derive from the same fields, with no generated
+colour image or baked lighting in albedo. Lighting is a warm grazing key and
+soft sky fill, with physical camera depth of field at actual specimen scale.
+
+This 1.2 m specimen is explicitly a shape/material calibration study. It is not
+San Luis geometry, and is not presented as a completed regional terrain render.
+Once the surface language works, its authoring rules can be transferred to the
+geospatial source. The previous region renders remain rejected evidence.
+
+```sh
+uv run python -m bake.style.clay_study --output data/clay-study --resolution 1400
+blender --background --python-exit-code 1 --python bake/style/blender_clay_study.py -- --study data/clay-study
+```
+
+The first continuous specimen also failed visually: too smooth, with dark round
+spots rather than crumbly crust. It is diagnostic evidence, not an accepted
+look. A second comparison uses the registered `brown_mud_03` source maps by
+Rob Tuytel, [Poly Haven](https://polyhaven.com/a/brown_mud_03),
+[CC0](https://polyhaven.com/license). `fetch_clay_scan.py` downloads pinned 2K
+files, checks source MD5 and records SHA256/provenance. The scan supplies colour,
+roughness and physical height bump together; procedural hemisphere geometry is
+removed in that comparison. The fine detail is intentionally scaled to a 0.10 m
+repeat on the 1.2 m diorama specimen, rather than its real-world 1.3 m width.
+The source photographs still determine art direction; a mud scan alone is not
+a match to the sculpted relief model.
+
+## Style authority correction
+
+The user explicitly clarified that only the supplied images define the look.
+The subsequent “large sandbox” wording is not an independent style brief and
+must not drive material selection, container geometry, tool marks or sand-pile
+forms. No sandbox-specific implementation was made. Searches for sand materials
+were exploratory and are not an approved direction. The visual PRD now records
+image-only authority and concrete observations from the original and ridge-level
+images. All generic scan/procedural studies remain implementation experiments,
+not replacement targets or evidence of visual acceptance.

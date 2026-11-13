@@ -75,6 +75,30 @@ wheels = [
 ]
 
 [[package]]
+name = "dracopy"
+version = "2.2.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/29/e1/e8611bc37f7e3700e09692abb11ae7a821e97da344b05a8087f99b1aef2a/dracopy-2.2.0.tar.gz", hash = "sha256:feb7b7997dab749262d0b015524efb069cc4b53044920850310878c9011b618e", size = 83311208, upload-time = "2026-10-07T20:37:29.965Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e3/c3/1eb5c04e6451093bdf2afa14f60052068491cc9cd3cdbee39b1e27dd612b/dracopy-2.2.0-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:b448739191468927fd1a82fc6acd8d51d22e7f24f26b615b00aae444f7a4a37e", size = 2804073, upload-time = "2026-10-07T20:36:21.236Z" },
+    { url = "https://files.pythonhosted.org/packages/a8/cd/142c5fa1d788ba9de831ec4e087e026cf4e8a440939769177a1a3002fb8c/dracopy-2.2.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:d9a1f1d7a627b4deb4c86cf567d40f04037025104b2954d6589d846e2a210891", size = 2597742, upload-time = "2026-10-07T20:36:22.645Z" },
+    { url = "https://files.pythonhosted.org/packages/8e/db/d69d6ea8238c702f89675d649b2a982ee7ffbf7830e3e7fa39e41ec7031f/dracopy-2.2.0-cp312-cp312-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:c0216fbdc6c0cfe003c527ddecb0cd83cd4b5840162a916687b945297e22f664", size = 4867822, upload-time = "2026-10-07T20:36:24.117Z" },
+    { url = "https://files.pythonhosted.org/packages/d9/7e/1a3609c823afcb74fae0f3520c5d417367412db28fdd8aa9402925ab96cf/dracopy-2.2.0-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:862a3e20c129d05ef1cdf54216c8b122fb0e46ecfd01112d86ed1736e58a5209", size = 5005757, upload-time = "2026-10-07T20:36:25.414Z" },
+    { url = "https://files.pythonhosted.org/packages/79/e8/df44ec6d0304d0d6980756a3f343d797d947657f896371b9d3b7164ad997/dracopy-2.2.0-cp312-cp312-musllinux_1_2_aarch64.whl", hash = "sha256:8fa61307735a624ecafcbf725bffcc1fa2720d810eda4c230ba29216009c1da7", size = 5939946, upload-time = "2026-10-07T20:36:26.634Z" },
+    { url = "https://files.pythonhosted.org/packages/41/05/c11e0d8f75d6493aaf7fa7c50684c60ab19e29a8ba79cd85e58060575c9d/dracopy-2.2.0-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:f4e482cf21c05dba52f3a3f03ca34dfd4290316df45fbade2923c9f2f2b340fe", size = 6091418, upload-time = "2026-10-07T20:36:28.245Z" },
+    { url = "https://files.pythonhosted.org/packages/e2/0a/ede51ee5fff56c91999648e01cdfbc5494b33f0ec047e7b6173ebffb0a40/dracopy-2.2.0-cp312-cp312-win32.whl", hash = "sha256:7db303ca9fd2747e1aaa98ff96ed022f4bb2309435114084be916e90937f7d18", size = 4550102, upload-time = "2026-10-07T20:36:32.079Z" },
+    { url = "https://files.pythonhosted.org/packages/c1/25/2bcc71cfe17b08ef22d7512d4cabaac3f2f6c05cc6bb32633a17707d8aea/dracopy-2.2.0-cp312-cp312-win_amd64.whl", hash = "sha256:95d5abce48ba75d9ebc2cf8ded97904057c69f25c4d88aaba265d22493867a1a", size = 5231968, upload-time = "2026-10-07T20:36:30.22Z" },
+    { url = "https://files.pythonhosted.org/packages/45/7b/9227301fbb6d4b4977cbc3e7ee24f19ce49ecf813416653a3d0095209b19/dracopy-2.2.0-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:0f2ba507a5b88f760384e08bb09464be6702a9c3a5d20dec5b9a69711beed248", size = 2804194, upload-time = "2026-10-07T20:36:33.501Z" },
+    { url = "https://files.pythonhosted.org/packages/dc/e9/7ff57820f658fcfac3cb0e12be099baf031ea1f35c8180ebe67057bb5849/dracopy-2.2.0-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:67b58a1a99f505876651122688c9bf70b3809f7ff47d34a85471cf14481c5826", size = 2597489, upload-time = "2026-10-07T20:36:34.646Z" },
+    { url = "https://files.pythonhosted.org/packages/08/b8/a1031ca2625a275727eebd2c904622fd75ab3729dc5fdb08c871962b0698/dracopy-2.2.0-cp313-cp313-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:94af90d8ccf3bebb39f7e71be71cc43802f2fda57e8d11fe397c19ef3ed5e0fe", size = 4863717, upload-time = "2026-10-07T20:36:35.949Z" },
+    { url = "https://files.pythonhosted.org/packages/e3/83/73182872913fd59b8a03a5e75d1a192c6b2c9a3bc4c7e221dad2631cb09f/dracopy-2.2.0-cp313-cp313-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:ea0fc4a58554e74cf796ee058dbd434d4081923c206fdeac286c73f571eb4328", size = 4998219, upload-time = "2026-10-07T20:36:37.346Z" },
+    { url = "https://files.pythonhosted.org/packages/59/7d/2f9654ca25ee550341cb6384c5cd9372df28167c3d0018fc3acf348e9a50/dracopy-2.2.0-cp313-cp313-musllinux_1_2_aarch64.whl", hash = "sha256:6cf1f0d0b3cdc4a6c0da617d3d4a2c718b26ce2d746e778d1ab07938d58f2b28", size = 5941256, upload-time = "2026-10-07T20:36:38.898Z" },
+    { url = "https://files.pythonhosted.org/packages/49/75/736956992cef65dd6734bf1d160e69f73d4eae1a6f2e476c8293f461c606/dracopy-2.2.0-cp313-cp313-musllinux_1_2_x86_64.whl", hash = "sha256:0dba7b30e72e39c20dd74a5df21f1f82c08724133fba553d7f89136270b2325c", size = 6086236, upload-time = "2026-10-07T20:36:40.223Z" },
+    { url = "https://files.pythonhosted.org/packages/ff/e9/c3f91f33ea47de381df8feea47d5cee7a8a4e5f0660692f61bb912537a2e/dracopy-2.2.0-cp313-cp313-win32.whl", hash = "sha256:584f17d884815907be24e45fe2cba43a0f1f6967613280cac28a85c2ee1f9937", size = 4549661, upload-time = "2026-10-07T20:36:43.166Z" },
+    { url = "https://files.pythonhosted.org/packages/6e/3b/760e99aa7a35deaaf7df66959425cd461ed7de7b734d1bc8193a7e3dcb64/dracopy-2.2.0-cp313-cp313-win_amd64.whl", hash = "sha256:f48bf90f5651a957db9ffba03057aa224ec9bd815927749d4101737a48b547eb", size = 5232241, upload-time = "2026-10-07T20:36:41.633Z" },
+]
+
+[[package]]
 name = "fiona"
 version = "1.10.1"
 source = { registry = "https://pypi.org/simple" }
@@ -304,6 +328,7 @@ name = "san-luis-relief-bake"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "dracopy" },
     { name = "fiona" },
     { name = "mapbox-earcut" },
     { name = "numpy" },
@@ -321,6 +346,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "dracopy", specifier = ">=2.2.0" },
     { name = "fiona", specifier = ">=1.10,<2" },
     { name = "mapbox-earcut", specifier = ">=2,<3" },
     { name = "numpy", specifier = ">=2.2,<3" },

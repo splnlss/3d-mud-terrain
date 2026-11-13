@@ -1,0 +1,46 @@
+{
+  "camera": "creek",
+  "location": [
+    -0.95,
+    -0.78,
+    0.46
+  ],
+  "target": [
+    -0.15,
+    -0.24,
+    0.0
+  ],
+  "lens": 60,
+  "fstop": 11,
+  "size": [
+    1672,
+    941
+  ],
+  "samples": 96,
+  "sun_direction": [
+    0.737765371799469,
+    0.6212760806083679,
+    0.26404234766960144
+  ],
+  "sun_energy": 4.0,
+  "sun_angle_deg": 7,
+  "sun_colour": [
+    1,
+    0.8,
+    0.56
+  ],
+  "world_colour": [
+    0.8,
+    0.66,
+    0.5
+  ],
+  "world_strength": 0.7,
+  "view": "AgX - Medium High Contrast",
+  "exposure": 0.55,
+  "water_colour": ".42,.40,.36",
+  "water_roughness": 0.22,
+  "neutral_clay": false,
+  "depth_of_field": false,
+  "vertices": 10240000,
+  "note": "Calibration specimen; not the San Luis DEM"
+}

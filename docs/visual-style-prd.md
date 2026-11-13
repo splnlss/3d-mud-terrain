@@ -1,6 +1,30 @@
 # Visual style PRD: sculpted San Luis diorama
 
-Status: visual direction approved; engine-agnostic clarification incorporated. Reference-patch implementation plan prepared for review; implementation has not begun.
+Status: implementation in progress; visual acceptance remains open. The user has rejected the current terrain and material drafts. Images are the sole visual style authority.
+
+## Resume and current acceptance state
+
+For the next implementation session, start with [Claude handoff](claude-handoff.md)
+and the [failed-attempt ledger](style-patch-review.md). Inspect the original and
+five supplied images before reading critiques or selecting a material technique.
+
+**No current render is visually accepted.** The user rejected the textured terrain
+as “not close”. Dense source geometry and passing tests did not change that result.
+The later procedural and scanned-material specimens are diagnostic experiments,
+not San Luis renders and not accepted replacements for the references.
+
+| Slice | Actual state at handoff |
+|---|---|
+| VS1 | Real DEM/NHD patch and source cameras exist; full preview/capture contract remains incomplete. |
+| VS2 | Several source geometry recipes exist; visual shape/contact gates have not passed. |
+| VS3 | Height/normal/PBR authoring and small residual-normal fixtures exist; browser technique comparison and visual depth acceptance remain open. |
+| VS4 | Offline material/light/water iterations exist; the look was rejected. Current water animation and portable parity remain unverified. |
+| VS5 | Open. No user-approved patch; earlier Claude “Ready to start” concerned plan readiness only. |
+| VS6 / VS7 | Current-style regional rollout and performance refinement have not started. |
+
+The old sixteen-cell GLB export predates the current source and material changes.
+It is marked stale. Its earlier format validation is not acceptance of the current
+look. The PlayCanvas viewer has not received these source-only experiments.
 
 ## 1. Intent and priority
 
@@ -23,6 +47,40 @@ optimisation targets, not reasons to reject a necessary visual technique early.
 No new mandatory performance numbers are invented here.
 
 ## 2. Reference authority
+
+### Image-only visual authority — user clarification, 2026-11-12
+
+The supplied images alone define the desired visual appearance. Verbal labels
+such as “mud”, “sand”, “sandbox”, “clay”, “rock” or “diorama” must not introduce
+additional appearance requirements. They are not substitutes for inspecting the
+images. In particular, do not infer a container, tools, fingerprints, sand-pile
+angles, a material species or a construction process from those labels.
+
+Every visual change must identify the visible reference feature it addresses
+and be judged in an actual render against that reference. Generated colour
+studies, generic scanned materials, earlier renders and model critiques are
+implementation experiments; none can replace the supplied images as the target.
+Technical tests and mesh density do not establish visual similarity.
+
+Direct observations from the original image and ridge-level study 02:
+
+- Relief varies through irregular connected crests, broken shoulders, steep
+  uneven faces and broad lower areas. Repeated cones and parallel sinusoidal
+  ridges in the current studies do not reproduce that distribution.
+- Darker protrusions gather into substantial, connected patches with uneven
+  margins. The references show several nested feature sizes within each patch;
+  isolated plate chips or smooth dark dots do not reproduce them.
+- Exposed ochre/taupe areas have local scratches, small ledges and directional
+  irregularities, interspersed with relatively smooth areas. Uniform grain or
+  regularly spaced grooves across every face do not reproduce that variation.
+- Pale channel surfaces occupy broad continuous negative space and meet
+  irregular banks. Inspect their value and edges directly in the chosen image.
+- Highlights concentrate along selected exposed edges and small surface
+  features. Preserve darker recessed detail and soft fill; a globally shiny
+  surface or an evenly matte surface misses those relationships.
+
+The existing nonvisual project requirements remain specified elsewhere in this
+PRD. This clarification governs how visual appearance is derived and accepted.
 
 The [original Relief Pfyffer photograph](reference/relief-pfyffer.png) anchors the
 physical material character. The five user-supplied generated studies define the
@@ -100,11 +158,11 @@ decision. Roads/buildings remain absent; field patterns stay subordinate.
 |---|---|---|
 | V1 Form | Irregular, pinched, chipped ridges with lobes, folds and occasional steep faces. Avoid uniformly inflated hills and uniform noise bumps. | Clay-only views from all three cameras show the structure without colour, normal maps or blur. Silhouette crops show actual irregular geometry. |
 | V2 Aggregates | Dark crust consists of clustered, varied clasts separated by deep gaps, with isolated loose fragments and bare spaces. | Close view shows distinct clast tops, sidewalls and cavities; orbit reveals depth. It must not resemble fabric, scales, pebbled wallpaper or uniformly packed cells. |
-| V3 Ochre and dust | Ochre clay has smoother worn faces, cracks/tool marks and dusty upper surfaces; dark deposits have broken boundaries. | Colour and neutral-light crops show both material families without continuous contour bands or generic camouflage blobs. Dust gathers selectively rather than washing out the scene. |
+| V3 Ochre and dust | Ochre areas have smoother worn faces, directional scratches, cracks and dusty upper surfaces; dark deposits have broken boundaries. | Colour and neutral-light crops show both material families without continuous contour bands or generic camouflage blobs. Dust gathers selectively rather than washing out the scene. |
 | V4 Contact | Clasts sit in the clay, deposits collect plausibly, and banks connect continuously to channels. | Close orbit shows no floating clasts, dark baked halos detached from objects, faceted shelves, holes or z-fighting. |
 | V5 Water | Pale warm beige, opaque silty/painted water, broad enough to read within a bank; fine sediment streaks, subdued glints. | Still and 10-second clip show subtle shimmer without mirror reflections, foam, bright road-like strips or whole-surface flashing. |
 | V6 Light | Warm directional key, soft cast shadows, dark but readable cavities, gentle fill, muted earth colours. | Neutral and final lighting captures preserve material identity. Highlights retain detail; cavities do not become black paint. |
-| V7 Scale | A photographed miniature with coherent clod sizes and layered depth. | Same patch at three zooms; fine detail resolves into clusters nearby and merges naturally at distance without crawling or obvious repetition. |
+| V7 Scale | Reference-consistent apparent feature sizes and layered depth. | Same patch at three zooms; fine detail resolves into clusters nearby and merges naturally at distance without crawling or obvious repetition. |
 | V8 Geography | Distinct San Luis structures survive the artistic treatment. | Source/stylised overlays and named landmark views demonstrate retention of the required major geography. |
 
 Primary target composition is 01; primary surface target is 04. Images 02 and 05
@@ -280,7 +338,7 @@ shoreline stability and seams. Quality reductions cannot alter the saved masters
 | Approach | Expected result | Decision |
 |---|---|---|
 | Improve normal maps only | Better lighting detail; smooth silhouettes and shallow-looking cavities remain. | Keep as baseline, insufficient final approach. |
-| Rich maps + POM + selective geometry | Detailed clump interiors with convincing ridges, banks and orbit behaviour. | Recommended: first reference patch, then regional adaptation. |
+| Rich maps + POM + selective geometry | Candidate for detailed clump interiors, ridge/bank silhouettes and orbit behaviour. | Evaluate on the reference patch; no recipe or material technique has passed visual acceptance yet. |
 | Dense sculpted geometry everywhere | Strong local depth but large authoring/data cost; distant detail is wasted. | Use as a quality reference and selectively retain visible geometry. |
 
 ## 7. Vertical slices and exit gates
@@ -305,6 +363,19 @@ from the approved master afterwards.
 | VS7 Performance refinement | Measure accepted high-quality scene; introduce documented quality presets and streaming refinements. | Publish actual device/viewport/frame-time/memory/transfer results. Any downgrade must retain approved visual traits; unresolved target misses remain explicit. |
 
 ## 8. Evidence and acceptance procedure
+
+Resume by making one small image-matched patch, with one named reference and
+comparable framing, feature scale and lighting. State the visible discrepancy a
+change addresses before modifying the source. Review shape, connected deposit
+structure, material boundaries and reflectivity together. Preserve a sharp,
+blur-off capture; any photographic treatment gets a separate image. A standalone
+specimen must remain labelled as such and later transfer to the real terrain.
+
+Advance after a visually reviewed result, rather than after an arbitrary number
+of shader, noise or geometry iterations. Preserve rejected renders and record why
+they failed. Generic material assets and reviewer descriptions remain subordinate
+to the supplied images. Numeric art parameters in the existing recipes are
+experiments, not measurements recovered from the photographs.
 
 For each slice save bake/config/asset hashes, viewport and DPR, camera, sun/fill,
 exposure/tone settings, engine version, screenshots and orbit clip. Review at 1920×1080
@@ -340,9 +411,19 @@ loss of geographic identity; and texture/data growth. Use the comparison control
 and patch gate to resolve these before regional rollout.
 
 Non-goals: runtime erosion, water simulation, extracting reference-image textures,
-Google-derived geometry, reconstruction of the entire model from a photograph,
+ reconstruction of the entire model from a photograph,
 unrestricted ground exploration, or building another full runtime application. Overhangs are optional local mesh
 features; POM and terrain heightfields cannot represent them faithfully.
+
+### Source-data decisions — user, 2026-11-12
+
+Google 3D Tiles and USGS NAIP may both be used for geometry and imagery (this
+withdraws the earlier Google-derived-geometry non-goal). DEM-derived lines are
+smoothed. Farmland mirrors real crop fields and centre pivots; dark and light
+areas follow terrain imagery, with some randomisation on hills and wild ground.
+Woody cover along the creek and on hillsides renders dark, channel widths stay
+close to the source, and mapped roads and tracks are included (this withdraws
+"roads remain absent" in section 3; buildings stay absent).
 
 ## Review record
 
