@@ -48,7 +48,7 @@ IMAGE_PX = 1100          # imagery samples across the tile core
 BASE_M = 2200.0          # below the lowest ground in the region: model zero and the base of vertical exaggeration
 GEOID_M = -16.2          # ellipsoid minus NAVD88 here, measured against Google 3D Tiles on the Culebra tile
 NORMAL_SCALE = .6        # the clay was tuned under soft global light; real-time direct light needs gentler detail normals
-WATER_LINEAR = (.42, .40, .36); WATER_ROUGHNESS = .22
+from bake.style.water_palette import WATER_LINEAR, WATER_ROUGHNESS
 ROAD_LEVEL = {'motorway': 0, 'trunk': 0, 'primary': 0, 'secondary': 0, 'tertiary': 2, 'unclassified': 3, 'residential': 3, 'service': 5, 'track': 5}
 
 

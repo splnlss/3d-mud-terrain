@@ -1,0 +1,5 @@
+# Colorado crown model set
+
+Approved direction: 2026-11-13 conversation, including geographic corrections and instruction to proceed.
+
+Separate single-resolution model, covering Colorado plus a minimum 200 statute mile perimeter. Model uses a local azimuthal equidistant map centred on Colorado, bent into a spherical cap. One third of the sphere's diameter stands above ground. Colorado occupies the central crown rather than a small distant patch. Default camera faces north from south: San Juans left, Front Range right. Mountains use strongly exaggerated real elevation with softened summits; existing relief style supplies connected dark clumps, warm exposed mud and pale channels. Snow is selective at true high elevations. Rivers are mapped USGS lines with widened channels, never synthetic routes. Specifically verify Rio Grande at 37 N and Arkansas at Colorado/Kansas border. Curvature, gain, smoothing and width exaggerations are documented. No LOD tree. Deliver editable source, portable GLB, preview and geographic review map. Existing San Luis sets remain intact.

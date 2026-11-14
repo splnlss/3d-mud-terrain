@@ -27,3 +27,7 @@ public/relief-v3
 public/relief-test
 public/relief-sample
 dist-relief/
+
+# Colorado crown generated models
+public/colorado-globe
+dist-colorado/

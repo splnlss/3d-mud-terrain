@@ -124,3 +124,13 @@ inspect them with `blender --background --python-exit-code 1 --python
 bake/style/blender_bake.py -- --package data/style-patch --action verify` and
 `node scripts/validate-style-package.mjs data/style-patch`. Source authoring renders
 and fresh portable-import renders are separately labelled; both need visual review.
+
+### Colorado crown model set
+
+A separate overview sculpture covers all Colorado plus a 200-mile perimeter,
+as a wide matte-clay Earth-curve with rounded exaggerated relief, patchy snow,
+narrow mapped rivers and an atmosphere halo behind it (viewer/Blender staging only).
+Run `npm run bake:colorado`, then open `/colorado.html` on the dev server.
+`npm run build:colorado` creates a standalone site in `dist-colorado/`.
+See [Colorado model notes](docs/colorado-globe.md) for sources, geographic checks,
+artistic shaping and the GLB / Blender package.
