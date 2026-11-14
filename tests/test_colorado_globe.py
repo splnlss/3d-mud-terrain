@@ -35,8 +35,9 @@ def test_isolated_summit_is_rounded_without_shifting_range():
     shaped = sculpt_elevation(height, 1.)
     baseline = (1800 - DATUM_M) * GAIN
     assert np.unravel_index(shaped.argmax(), shaped.shape) == (50,50)
-    assert shaped.max() - baseline < 2000  # A raw DEM spike at this gain would be 250,000.
-    assert abs(shaped[50,49] - shaped[50,50]) < 100
+    bump = shaped.max() - baseline
+    assert 0 < bump < 4000  # a raw DEM spike at this gain would be over 200,000
+    assert abs(shaped[50,49] - shaped[50,50]) < .2 * bump   # rounded crown, not a needle
     assert np.allclose(shaped, shaped[::-1,::-1])
 
 
@@ -70,6 +71,15 @@ def test_relief_is_full_in_the_state_and_reduced_in_the_compressed_buffer():
     assert scale[row, col] == 1 and scale[100, 190] < .5 and scale.min() >= 0
 
 
+def test_place_marks_sit_on_the_cap_in_geographic_order():
+    from bake.style.colorado_globe import place_marks, PLACES
+    marks = {m['name']: m['model_xyz'] for m in place_marks(np.zeros((65, 65)), coverage_radius())}
+    assert len(marks) == len(PLACES) and all(p[2] > 0 for p in marks.values())
+    ute, san_luis, rocky_ford, denver = (marks[n] for n in ['Ute Mountain Farm and Ranch', 'San Luis', 'Rocky Ford', 'Denver'])
+    assert ute[0] < san_luis[0] < denver[0] < rocky_ford[0]       # west to east
+    assert san_luis[1] < rocky_ford[1] < denver[1]                 # south to north
+
+
 def test_narrow_diagonal_channel_mask_is_continuous_and_two_cells_wide():
     from bake.style.colorado_globe import channel_distance_m
     from shapely.geometry import LineString
@@ -99,3 +109,29 @@ def test_display_warp_has_no_foldovers_or_reordered_east_west_locations():
     dx_x,dx_y=np.gradient(wx);dy_x,dy_y=np.gradient(wy)
     assert np.all(dx_y*dy_x-dx_x*dy_y>0)
     assert np.all(np.diff(wx,axis=1)>0)
+
+
+def test_display_inverse_round_trips_inside_the_cap():
+    from bake.style.colorado_globe import display_map, display_inverse
+    radius = coverage_radius(); rng = np.random.default_rng(3)
+    r = np.sqrt(rng.uniform(0, .95, 500)) * radius; a = rng.uniform(0, 2*np.pi, 500)
+    x, y = r*np.cos(a), r*np.sin(a)
+    bx, by = display_inverse(*display_map(x, y))
+    assert np.allclose(bx, x, atol=1) and np.allclose(by, y, atol=1)
+
+
+def test_display_grid_relief_scale_is_full_in_state_and_reduced_on_compressed_rim():
+    from bake.style.colorado_globe import display_map, display_relief_scale
+    radius = coverage_radius(); n = 201
+    dx, dy = np.meshgrid(np.linspace(-radius, radius, n), np.linspace(radius, -radius, n))
+    scale = display_relief_scale(dx, dy)
+    cx, cy = display_map(*project(np.array([-105.5]), np.array([39.])))
+    row, col = int(round((radius - cy[0]) / (2*radius) * (n-1))), int(round((cx[0] + radius) / (2*radius) * (n-1)))
+    assert scale[row, col] == 1 and scale[100, 199] < .5 and np.nanmin(scale) >= 0   # 0.99 R on the east rim
+
+
+def test_river_labels_snap_onto_their_mapped_course():
+    from bake.style.colorado_globe import snap_to_rivers
+    features = [{'attributes': {'GNIS_NAME': 'Rio Grande'}, 'geometry': {'paths': [[[-106.5, 37.5], [-106.0, 37.62], [-105.5, 37.7]]]}},
+                {'attributes': {'GNIS_NAME': 'Arkansas River'}, 'geometry': {'paths': [[[-106.06, 37.61], [-104.0, 38.2]]]}}]
+    assert snap_to_rivers(features, [('Rio Grande', -106.05, 37.6)]) == [('Rio Grande', -106.0, 37.62)]

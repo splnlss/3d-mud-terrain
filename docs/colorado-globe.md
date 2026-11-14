@@ -4,7 +4,8 @@ A separate single-resolution model set, with its own preview at `/colorado.html`
 The default view looks north: southwestern Colorado / San Juans on the left,
 eastern Colorado / Front Range on the right. It is presented as a small Earth in
 dark space: a wide, shallow cap with an atmosphere halo and a sliver of sunrise
-behind it. The state outline is an optional guide, off by default.
+behind it. The page shows only the title over the model, framed large like Earth seen from
+orbit. The state outline is an optional guide, off by default.
 
 ## Build and inspect
 
@@ -22,8 +23,10 @@ The site build includes the GLB. To use hosted assets instead, supply
 The generated package is at
 `/Volumes/TXX_Backup/DustnDivide/05_3D-tiles/colorado-globe/`:
 
-- `colorado-crown.glb`: ordinary glTF materials, vertex colours and smooth normals;
-  separate state border guide; one resolution, no tiles or runtime refinement.
+- `colorado-crown.glb`: portable asset (110 MB): ordinary glTF materials, vertex colours and
+  smooth normals; separate state border guide; one resolution, no tiles or runtime refinement.
+- `colorado-crown-web.glb`: the same model with meshopt + KHR_mesh_quantization (29 MB),
+  written by `node scripts/compress-colorado-glb.mjs`; the viewer loads this one.
 - `colorado-crown.blend`: editable dense source and studio staging.
 - `model.npz`, `geography.npz`, `border.json`: editable mesh arrays, true elevations,
   snow/channel fields and the geographic outline.
@@ -80,38 +83,67 @@ terrain, channels, snow and the optional state outline.
 The warp has no cut, seam or foldover (tested). Distances are not uniform: this is
 an authored overview composition, unsuitable for navigation or measurement.
 
+## Mesh grid and elevation (revision 4)
+
+The 1537 × 1537 mesh grid is uniform in *display* space. Each vertex is placed where it is
+seen and samples the source map through the exact inverse of the display warp, so the
+magnified state gets about twice the vertex density of the old source-space grid at the
+same budget (1.85 M vertices). Elevation comes from a 6000 × 4650 USGS 3DEP export over just
+the coverage circle (about 300 m per pixel; `source/dem-hires.tif`).
+
 ## Relief, snow and rivers
 
-Elevation above 1,500 m is exaggerated 62× after a 12-sample Gaussian rounding
-pass, so plains and plateaus stay on the sphere and only the ranges rise; finer
-variation is smoothed at 3 samples and exaggerated 16× to prevent needle peaks.
-Snow uses original smoothed elevation, never the sphere height.
+Elevation above 1,500 m is lifted 62× from a DEM blurred over 14 grid cells, and a finer band
+(3-cell blur, 22×) brings out individual ranges and peaks: Front Range, Sawatch, San Juans,
+Sangre de Cristo. A soft ceiling (`0.2 · tanh(h / 0.2)`) rounds the tallest crowns into
+clay knuckles instead of spires. Snow uses original smoothed elevation.
 
-Rivers follow the NHD centrelines exactly. Major rivers (Rio Grande, Arkansas,
-Colorado, South Platte) are 3.6 km wide in source terms and the other selected
-rivers 2.3 km, down from 10 km / 6 km. Bank distance is measured to the mapped
-polyline, the mud recipe's bank transitions are scaled (×10) to suit these narrow
-channels, and each bed is cut below the valley the river actually follows. Water
-colour is the shared San Luis palette (`bake/style/water_palette.py`) in a warm
-silty tone, (0.81, 0.72, 0.58) × linear (0.42, 0.40, 0.36): clearly lighter than
-the clay so rivers stay legible, without reading white.
+Rivers follow the NHD centrelines exactly; each course is densified and warped into display
+space, then cut at a constant on-screen width (5.2 km display for the Rio Grande, Arkansas,
+Colorado and South Platte; 3.4 km for the others). The mud recipe's bank transitions are
+scaled (×10) to suit these narrow channels and each bed is cut below its valley. Water colour
+is the shared San Luis palette (`bake/style/water_palette.py`) in a warm silty tone.
 
-The finish is matte earthen clay: GLB material roughness 0.95 for mud and snow,
-0.6 for rivers, specular level 0.2. Colour contains no baked lighting.
+The finish is matte earthen clay: GLB material roughness 0.95 for mud and snow, 0.6 for
+rivers, specular level 0.2. Colour contains no baked lighting.
+
+## Labels
+
+`manifest.json` lists `places` (Ute Mountain Farm and Ranch, approximate; San Luis; Rocky
+Ford; Denver) and `river_labels` (Colorado, Green, Yampa, San Juan, Rio Grande, Arkansas,
+South Platte). River labels snap to a vertex of the mapped course; Colorado and Rio Grande
+sit on their southern reaches (Moab; northern New Mexico) to read in the hero view. All are
+projected through the same warp onto the displayed surface. Edit `PLACES` / `RIVER_LABELS`
+and run `uv run python -m bake.style.colorado_globe --output data/colorado-globe --places-only`
+to update them without re-baking.
+
+The page has no buttons; review switches are URL parameters: `?view=top` (north-up map view),
+`?outline=1` (state outline), `?places=0`, `?rivers=0`, `?stats=1` (frame time). Drag to orbit,
+scroll to zoom, right-drag to pan.
+
+## Performance
+
+Measured in Chrome on this Mac at 1600 × 1000 CSS px, device pixel ratio 2: about 11 ms per
+frame (≈ 92 fps) in both views, shadows on. MSAA is enabled only below a pixel ratio of 2
+(cut 20 → 13 ms at 3200 × 2000); the web GLB loads in under 2 s from the dev server.
+`?stats=1` shows frame time in the footer.
 
 ## Presentation layer (not in the GLB)
 
-The atmosphere and sun are scene staging only. Both renderers use the same formula:
-a camera-facing halo one sphere radius behind the globe centre, brightest at the
-limb with a cubic fade to 1.7 sphere radii, pale blue with an amber lobe toward the
-sun, fading out toward the ground; a small emissive sun at source position
-(0.30, 1.7, 0.44), low enough that the ridge hides most of it from the hero view;
-and a weak warm back light from the same direction. Because the halo is behind the
-terrain and the sun is a world-space object, the rim follows the silhouette and
-the sun is occluded by terrain as the camera orbits.
+The atmosphere is scene staging only, identical in both renderers: a camera-facing halo one
+sphere radius behind the globe centre, scaled so its limb lines up exactly in perspective.
+
+- Broad glow: pale blue, brightest at the limb with a cubic fade to 1.7 sphere radii, and an
+  amber lobe toward a low sunrise behind the crown (no sun disc).
+- Limb band: a thin bright cyan band hugging the planet's horizon, like Earth from orbit.
+- Both exist only behind the emerging planet: they are faded by the height of the sphere's
+  tangent (horizon) point in each direction, so nothing glows down the planet's lower sides
+  or below its base.
+
+A weak warm back light comes from the sunrise direction.
 
 - Blender: `presentation()` / `place_halo()` in `bake/style/blender_colorado_globe.py`.
-- Browser: `src/colorado-atmosphere.ts`. Deep links: `?view=top`, `?outline=1`.
+- Browser: `src/colorado-atmosphere.ts`.
 
 `portable-verification.json` lists the reimported GLB's materials and confirms the
 halo and sun are not part of the asset.

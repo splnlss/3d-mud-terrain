@@ -13,6 +13,8 @@ CAP_ANGLE = math.radians(46)  # keep in step with colorado_globe.CAP_ANGLE
 SPHERE = .8 / math.sin(CAP_ANGLE); CENTRE = Vector((0, 0, -SPHERE * math.cos(CAP_ANGLE)))
 # Presentation only: never exported. Sun sits behind the crown, slightly right of centre, low enough for the ridge to hide most of it.
 SUN_POS = Vector((.30, 1.7, .44)); HALO_REACH = SPHERE * 1.7; GLOW = 1.2; HALO = 3.0
+# Thin bright atmosphere band hugging the planet's limb, like Earth seen from orbit: width and strength.
+RIM_WIDTH = .035; RIM = 3.0
 # Dry clay: matte mud, barely damp rivers. Roughness and specular level are exported with the GLB materials.
 MUD_ROUGHNESS = .95; RIVER_ROUGHNESS = .6; SPECULAR_LEVEL = .2
 
@@ -28,7 +30,7 @@ def material(name, color, rough, specular=SPECULAR_LEVEL):
 
 
 def presentation():
-    """Atmosphere halo behind the globe and a small occluded sun, matching src/colorado-atmosphere.ts. Scene-only: never exported."""
+    """Atmosphere behind the globe (broad halo plus a thin limb band) and a warm sunrise glow, matching src/colorado-atmosphere.ts. Scene-only: never exported."""
     bpy.ops.mesh.primitive_circle_add(vertices=96, radius=HALO_REACH * 1.05, fill_type='NGON'); halo = bpy.context.object; halo.name = 'Atmosphere halo'
     mat = bpy.data.materials.new('Atmosphere glow'); mat.use_nodes = True; nodes = mat.node_tree.nodes; links = mat.node_tree.links; nodes.clear()
     def math_node(op, a, b=None):
@@ -49,13 +51,26 @@ def presentation():
     warm = math_node('POWER', math_node('MAXIMUM', toward.outputs['Value'], 0), 24)
     rim = nodes.new('ShaderNodeEmission'); rim.inputs['Color'].default_value = (.45, .66, 1, 1); links.new(math_node('MULTIPLY', math_node('MULTIPLY', profile, gate.outputs[0]), GLOW), rim.inputs['Strength'])
     amber = nodes.new('ShaderNodeEmission'); amber.inputs['Color'].default_value = (1, .55, .22, 1); links.new(math_node('MULTIPLY', math_node('MULTIPLY', math_node('MULTIPLY', profile, warm), gate.outputs[0]), HALO), amber.inputs['Strength'])
-    add1 = nodes.new('ShaderNodeAddShader'); links.new(rim.outputs[0], add1.inputs[0]); links.new(amber.outputs[0], add1.inputs[1])
+    # Limb band: rises right at the limb, falls off exponentially over RIM_WIDTH sphere radii.
+    over = math_node('SUBTRACT', math_node('DIVIDE', length.outputs['Value'], SPHERE), 1.0)
+    band = math_node('MULTIPLY', math_node('EXPONENT', math_node('DIVIDE', math_node('MAXIMUM', over, 0), -RIM_WIDTH)), math_node('GREATER_THAN', over, -.004))
+    # The band follows the upper arc of the limb (angle from the halo's up axis), fading out toward where the planet meets the ground.
+    # Height of the sphere's tangent (horizon) point in this direction; the band exists only where that horizon is above ground.
+    sep = nodes.new('ShaderNodeSeparateXYZ'); links.new(coord.outputs['Object'], sep.inputs[0]); radius = math_node('MAXIMUM', length.outputs['Value'], 1e-4)
+    horizon = nodes.new('ShaderNodeValue'); horizon.name = 'Limb height'; right_z = nodes.new('ShaderNodeValue'); right_z.name = 'Right z'; up_z = nodes.new('ShaderNodeValue'); up_z.name = 'Up z'
+    tilt = math_node('ADD', math_node('MULTIPLY', math_node('DIVIDE', sep.outputs['X'], radius), right_z.outputs[0]), math_node('MULTIPLY', math_node('DIVIDE', sep.outputs['Y'], radius), up_z.outputs[0]))
+    arc = nodes.new('ShaderNodeMapRange'); arc.interpolation_type = 'SMOOTHSTEP'; arc.inputs['From Min'].default_value = .06; arc.inputs['From Max'].default_value = .24
+    limb_r = nodes.new('ShaderNodeValue'); limb_r.name = 'Limb radius'; horizon_y = math_node('ADD', horizon.outputs[0], math_node('MULTIPLY', tilt, limb_r.outputs[0])); links.new(horizon_y, arc.inputs['Value'])
+    # Glow only behind the emerging planet: the soft ground fade times a fade out along the planet's lower sides (planet horizon height).
+    sides = nodes.new('ShaderNodeMapRange'); sides.interpolation_type = 'SMOOTHSTEP'; sides.inputs['From Min'].default_value = .05; sides.inputs['From Max'].default_value = .4; links.new(horizon_y, sides.inputs['Value'])
+    for node in (rim, amber):
+        strength = node.inputs['Strength'].links[0].from_node; links.new(math_node('MULTIPLY', strength.outputs[0], sides.outputs[0]), node.inputs['Strength'])
+    limb = nodes.new('ShaderNodeEmission'); limb.inputs['Color'].default_value = (.55, .82, 1, 1); links.new(math_node('MULTIPLY', math_node('MULTIPLY', band, arc.outputs[0]), RIM), limb.inputs['Strength'])
+    add0 = nodes.new('ShaderNodeAddShader'); links.new(rim.outputs[0], add0.inputs[0]); links.new(limb.outputs[0], add0.inputs[1])
+    add1 = nodes.new('ShaderNodeAddShader'); links.new(add0.outputs[0], add1.inputs[0]); links.new(amber.outputs[0], add1.inputs[1])
     clear = nodes.new('ShaderNodeBsdfTransparent'); add2 = nodes.new('ShaderNodeAddShader'); links.new(add1.outputs[0], add2.inputs[0]); links.new(clear.outputs[0], add2.inputs[1])
     out = nodes.new('ShaderNodeOutputMaterial'); links.new(add2.outputs[0], out.inputs['Surface']); halo.data.materials.append(mat)
     for flag in ['visible_shadow', 'visible_diffuse', 'visible_glossy', 'visible_transmission', 'visible_volume_scatter']: setattr(halo, flag, False)
-    bpy.ops.mesh.primitive_uv_sphere_add(radius=.035, location=SUN_POS, segments=24, ring_count=12); sun = bpy.context.object; sun.name = 'Sun sliver'; sun.visible_shadow = False
-    glow = bpy.data.materials.new('Sun'); glow.use_nodes = True; e = glow.node_tree.nodes.new('ShaderNodeEmission'); e.inputs['Color'].default_value = (1, .62, .3, 1); e.inputs['Strength'].default_value = 2.5
-    glow.node_tree.links.new(e.outputs[0], glow.node_tree.nodes['Material Output'].inputs['Surface']); sun.data.materials.append(glow)
     bpy.ops.object.light_add(type='SUN', location=SUN_POS); back = bpy.context.object; back.name = 'Warm back light'; back.data.energy = 1.2; back.data.color = (1, .72, .45); back.data.angle = math.radians(4); aim(back, (0, 0, .3))
     return halo
 
@@ -63,8 +78,12 @@ def presentation():
 def place_halo(halo, eye):
     """Stand the halo one sphere radius behind the globe centre, facing the camera, scaled so its limb still lines up in perspective."""
     eye = Vector(eye); away = (CENTRE - eye).normalized(); halo.location = CENTRE + away * SPHERE; aim(halo, eye)
-    halo.scale = [(halo.location - eye).length / (CENTRE - eye).length] * 3
+    # Exact perspective limb: the tangent cone through the sphere meets the halo plane at radius SPHERE in local units.
+    d = (CENTRE - eye).length; halo.scale = [(halo.location - eye).length / math.sqrt(d * d - SPHERE * SPHERE)] * 3
     bpy.context.view_layer.update()
+    nodes = halo.data.materials[0].node_tree.nodes; basis = halo.matrix_world.to_3x3().normalized()
+    nodes['Limb height'].outputs[0].default_value = CENTRE.z - away.z * SPHERE * SPHERE / d; nodes['Limb radius'].outputs[0].default_value = SPHERE * math.sqrt(1 - (SPHERE / d) ** 2)
+    nodes['Right z'].outputs[0].default_value = basis.col[0].z; nodes['Up z'].outputs[0].default_value = basis.col[1].z
     local = halo.matrix_world.to_3x3().inverted() @ (SUN_POS - CENTRE); local.z = 0
     halo.data.materials[0].node_tree.nodes['Sun direction'].inputs[1].default_value = local.normalized()
 

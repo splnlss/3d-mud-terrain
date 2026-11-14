@@ -19,7 +19,7 @@
     "test": "uv run pytest && node --experimental-strip-types --test tests/*.test.ts",
     "bake:patch": "uv run python -m bake.style --config configs/style-patch.json --output data/style-patch",
     "refine:patch": "uv run python -m bake.style.refine --render",
-    "bake:colorado": "uv run python -m bake.style.colorado_globe --output data/colorado-globe && blender --background --python-exit-code 1 --python bake/style/blender_colorado_globe.py -- --package data/colorado-globe",
+    "bake:colorado": "uv run python -m bake.style.colorado_globe --output data/colorado-globe && blender --background --python-exit-code 1 --python bake/style/blender_colorado_globe.py -- --package data/colorado-globe && node scripts/compress-colorado-glb.mjs data/colorado-globe",
     "build:colorado": "sh scripts/build-colorado-site.sh"
   },
   "dependencies": {
